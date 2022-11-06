@@ -1,10 +1,14 @@
 ;;; 
 ;;; pv_iv.lisp
 ;;;
-;;; translation of Sorensen's code from extempore to common lisp
+;;; translation/adaption of parts of Andrew Sorensen's code from
+;;; extempore (https://github.com/digego/extempore) to Common Lisp
+;;;
+;;; The original scheme Code is Copyright (c) 2011-2020, Andrew
+;;; Sorensen
 ;;;
 ;;; **********************************************************************
-;;; Copyright (c) 2022 Orm Finnendahl <orm.finnendahl@selma.hfmdk-frankfurt.de>
+;;; The Common Lisp code is Copyright (c) 2022, Orm Finnendahl
 ;;;
 ;;; Revision history: See git repository.
 ;;;
@@ -762,6 +766,7 @@ keynum and a pc-set."
     with curr = starting-pitch
     collect (setf curr (+ curr iv))))
 
+#|
 
 ;; base drums      20-29 - bd
 ;; snare drums     30-39 - sd
@@ -777,7 +782,6 @@ keynum and a pc-set."
 ;; clap            85-89 - cp
 ;; maracca         90-93 - ma
 
-#|
 ;; base drums 20-29
 (define bd0 20)
 (define bd1 21)

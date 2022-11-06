@@ -1,4 +1,4 @@
 ;;;; package.lisp
 
 (defpackage #:cl-extempore
-  (:use #:cl))
+  (:use #:cl #:cm))
