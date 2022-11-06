@@ -24,7 +24,7 @@
 ;;;
 ;;; **********************************************************************
 
-(in-package :cm)
+(in-package :cl-extempore)
 
 ;;; pc_ivl.xtm -- pitch class and interval sets
 
