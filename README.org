@@ -1,0 +1,10 @@
+* cl-extempore
+*** Orm Finnendahl
+
+common lisp translation of parts of extempore by Andrew
+Sorensen. Needs cm and incudine.
+
+** License
+
+gpl 2.0 or later.
+
