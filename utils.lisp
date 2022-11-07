@@ -40,7 +40,7 @@
 (defun secs->samples (secs)
   (* secs *samplerate*))
 
-(defun samples->seks (samples)
+(defun samples->secs (samples)
   (float (/ samples *samplerate*) 1.0))
 
 (defparameter *instruments*
@@ -57,6 +57,18 @@
 
 (defun play-note (time instr keynum amp dur)
   (sprout
-   (funcall (symbol-function (intern (string-upcase (format nil "~a" instr))))
-            :time (samples->seks (- time (now))) :keynum keynum :amplitude amp
-            :duration (samples->seks dur))))
+   (funcall (symbol-function (intern (string-upcase (format nil "~a" instr)) 'cl-extempore))
+            :time (samples->secs (- time (now))) :keynum keynum :amplitude amp
+            :duration (samples->secs dur))))
+
+
+(defmacro play (time instr keynum amp dur)
+  `(play-note (*metro* 'get-time ,time) ,instr ,keynum (max 0 (min 127 ,amp))
+                (- (*metro* 'get-time (+ beat ,dur))
+                   (*metro* 'get-time beat))))
+
+(defmacro cosr (mid dev beats-per-cycle &key (phase 0))
+  `(round (+ ,mid (* ,dev (cos (+ (*,phase +TWOPI+) (* +TWOPI+ beat ,beats-per-cycle)))))))
+
+(defmacro sinr (mid dev beats-per-cycle)
+  `(round (+ ,mid (* ,dev (sin (* +TWOPI+ beat ,beats-per-cycle))))))
