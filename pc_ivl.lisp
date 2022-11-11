@@ -290,7 +290,8 @@
 ;; return the pitch class of pitch
 
 (defun pc (pitch)
-  (mod pitch 12))
+  "return pitch-class of pitch or nil if pitch isn't a number."
+  (and (numberp pitch) (mod pitch 12)))
 
 ;; A predicate for calculating if pitch is in pc-set
 ;;
@@ -299,7 +300,9 @@
 ;;
 ;; retuns true or false
 ;;
+
 (defun ? (pitch pc-set)
+  "is pitch-class of pitch contained in pc-set?"
   (consp (member (pc pitch) pc-set)))
 
 #|
@@ -316,7 +319,7 @@
                   (warn "no pc-set value to quantize to ~d ~d" keynum pc-set)))))
 |#
 
-(defun quantize (keynum pc-set)
+(defun pc-quantize (keynum pc-set)
   "quantize keynum to the closest keynum acording to pc-set."
   (let ((pc-set (sort pc-set #'<)))
     (multiple-value-bind (oct pc-in) (floor (round keynum) 12)
@@ -333,10 +336,10 @@
         (+ (* oct 12) (if (< (- pc-in low) (- high pc-in))
                           low high))))))
 
-;;; (quantize 60 '(2 4 5 7 8 11)) -> 59
+;;; (pc-quantize 60 '(2 4 5 7 8 11)) -> 59
 
-;;; (quantize 61 '(2 4 5 7 9 11)) -> 62
-;;; (quantize 59 '(2 4 5 7 9 11))
+;;; (pc-quantize 61 '(2 4 5 7 9 11)) -> 62
+;;; (pc-quantize 59 '(2 4 5 7 9 11))
 
 ;; quantize-high pc
 ;; Always slelects a higher value before a lower value where distance is equal.
@@ -433,11 +436,11 @@
 ;; (pc:relative 69 3 '(0 2 4 5 7 9 11)) => 74
 ;;
 
-(defun relative (keynum num-steps pc-set)
+(defun pc-relative (keynum num-steps pc-set)
   "return the keynum which is num-steps apart from supplied keynum
 according to the pc-set. The pc-set is replicating in the octave, so
 num-steps can extend several octaves up or down."
-  (let ((q-key (quantize keynum pc-set))
+  (let ((q-key (pc-quantize keynum pc-set))
         (len (length pc-set)))
     (multiple-value-bind (q-key-oct q-key-pc) (floor q-key 12)
       (let* ((q-key-pos (position q-key-pc pc-set))
@@ -445,7 +448,7 @@ num-steps can extend several octaves up or down."
         (multiple-value-bind (oct new-idx) (floor new-pos len)
           (+ (* 12 (+ oct q-key-oct)) (elt pc-set new-idx)))))))
 
-;;; (relative 62 2 '(0 2 4 5 7 9 11))
+;;; (pc-relative 62 2 '(0 2 4 5 7 9 11))
 
 ;; make-chord creates a list of keynums in the range [lower..upper[ in
 ;; accordance to the given pc-set. The keynums are spread out over the
@@ -489,7 +492,7 @@ num-steps can extend several octaves up or down."
 
 ;; quantize the values of seq to pc-set
 (defun quantize-list (seq pc-set)
-  (mapcar (lambda (p) (quantize p pc-set)) seq))
+  (mapcar (lambda (p) (pc-quantize p pc-set)) seq))
 
 ;; retrograde list
 (defun retrograde (seq) (reverse seq))
@@ -537,7 +540,7 @@ num-steps can extend several octaves up or down."
   (quantize-list (expand/contract lst factor) pc))
 
 ;; returns the pc-set of a scale type based on a given root
-(defun scale (root type &key (sort nil))
+(defun pc-scale (root type &key (sort nil))
   (if (stringp type) (setf type (intern (string-upcase type))))
   (let ((scale-ivs (cdr (assoc type *scales*))))
     (if scale-ivs
@@ -547,16 +550,16 @@ num-steps can extend several octaves up or down."
 
 ;; returns a scale pc-set based on a chord type (basic jazz modal theory)
 (defun chord->scale (root type &key (sort t))
-   (scale (pc (+ (cadr (assoc type *chord->scale*)) root))
+   (pc-scale (pc (+ (cadr (assoc type *chord->scale*)) root))
           (cddr (assoc type *chord->scale*))
           :sort sort))
 
 ;; returns a chord given a root and type
 ;; see *chord-syms* for currently available types
 ;;
-;; e.g. (chord 11 '^7)  => '(0 4 7 11)
+;; e.g. (pc-chord 11 '^7)  => '(0 4 7 11)
 
-(defun chord (root type &key (sort nil))
+(defun pc-chord (root type &key (sort nil))
   "return the pc-set of a chord with given root and type, optionally
 sorted."
   (let* ((chord (cdr (assoc type *chord-syms*)))
@@ -580,21 +583,21 @@ sorted."
                      (if (equal '^ maj-min)
                          *diatonic-major*
                          *diatonic-minor*))))
-    (chord (pc (+ root (cadr val))) (cddr val) :sort sort)))
+    (pc-chord (pc (+ root (cadr val))) (cddr val) :sort sort)))
 
 ;;; (diatonic 0 '^ 'vii)
 
 (defun chord-options (root maj-min pc-set)
   "returns chord options for root in maj-min key of pc-set.
 
-Example: (chord-options 2 '^ (scale 0 'ionian)) => ((0 4 7) (0 4 7 11) (0 5 7) (0 4 7 11 2) (0 4 7 11 6))
+Example: (chord-options 2 '^ (pc-scale 0 'ionian)) => ((0 4 7) (0 4 7 11) (0 5 7) (0 4 7 11 2) (0 4 7 11 6))
 "
   (let ((major7 '(^ ^7 ^sus ^9 ^7#4))
         (dom7 '(^ 7 ^sus 9))
         (minor7 '(- -7 -sus -9))
         (dim7 '(o -7b5 o7))
         (degree (degree root pc-set)))
-    (mapcar (lambda (sym) (chord root sym))
+    (mapcar (lambda (sym) (pc-chord root sym))
             (if degree
                 (if (equal maj-min '^)
                     (case degree
@@ -611,10 +614,10 @@ Example: (chord-options 2 '^ (scale 0 'ionian)) => ((0 4 7) (0 4 7 11) (0 5 7) (
                       ((1) dim7)
                       ((6) (append dom7 dim7))))))))
 
-;;; (chord-options 0 '- (scale 0 'dorian))
+;;; (chord-options 0 '- (pc-scale 0 'dorian))
 
-;;; (chord-options 0 '^ (scale 0 'ionian))
-;;; (chord-options 3 '^ (scale 0 'ionian))
+;;; (chord-options 0 '^ (pc-scale 0 'ionian))
+;;; (chord-options 3 '^ (pc-scale 0 'ionian))
 
 ;; make a chord that is fixed at either the 'top or the 'bottom
 ;; where fixed is as close as the chord allows to fix-point
@@ -634,7 +637,7 @@ fix-point, otherwise the highest keynum will be closest."
     (loop
       repeat num
       with dir = (if (null args) 1 (if (eq 'bottom (car args)) 1 -1))
-      for keynum = (quantize fix-point pc-set) then (relative keynum dir pc-set)
+      for keynum = (pc-quantize fix-point pc-set) then (pc-relative keynum dir pc-set)
       collect keynum into result
       finally (return (sort result #'<)))))
 
@@ -695,7 +698,7 @@ fix-point, otherwise the highest keynum will be closest."
              (setf match (find-closest chda pci))
              (setf new-pitch (if (> (random 1.0) .5)
                                  (quantize-low match pci)
-                                 (quantize match pci)))
+                                 (pc-quantize match pci)))
              (cons new-pitch chdb))
         finally (return (sort chdb #'<))))
 
@@ -720,7 +723,7 @@ usually this will be a list with one element
   "return a seq of keynums based on a list of steps, a beginning
 keynum and a pc-set."
   (loop for step in steps
-        for curr = (relative keynum step pc-set) then (relative curr step pc-set)
+        for curr = (pc-relative keynum step pc-set) then (pc-relative curr step pc-set)
         collect curr))
 
 ;;; (from-steps 60 '(1 2 -1 -2) '(0 2 4 5 7 9 11)) -> (62 65 64 60)
@@ -732,7 +735,7 @@ keynum and a pc-set."
                       (mapcar (lambda (scale)
                              (cons (intersection chord scale) scale))
                            (mapcar (lambda (type)
-                                  (scale root type))
+                                  (pc-scale root type))
                                 '(ionian aeolian mixolydian lydian phrygian locrian
                                   dorian lydian-mixolydian wholetone chromatic))))))
     (if (consp res) (cdr res) chord)))
@@ -744,10 +747,10 @@ keynum and a pc-set."
       (reverse (car args))
       (if (null args)
           (melody-by-step starting-pitch steps pc-set (list starting-pitch))
-          (melody-by-step (relative starting-pitch (car steps) pc-set)
+          (melody-by-step (pc-relative starting-pitch (car steps) pc-set)
                           (cdr steps)
                           pc-set
-                          (cons (relative starting-pitch (car steps) pc-set) (car args))))))
+                          (cons (pc-relative starting-pitch (car steps) pc-set) (car args))))))
 |#
 
 (defun melody-by-step (starting-pitch steps pc-set)
@@ -755,7 +758,7 @@ keynum and a pc-set."
   (loop
     for step in steps
     with curr = starting-pitch
-    collect (setf curr (relative curr step pc-set))))
+    collect (setf curr (pc-relative curr step pc-set))))
 
 ;;; (melody-by-step 60 '(1 2 -1 -2) '(0 2 4 5 7 9 11))
 

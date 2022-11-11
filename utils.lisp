@@ -74,7 +74,7 @@
   `(round (+ ,mid (* ,dev (sin (* +TWOPI+ beat ,beats-per-cycle))))))
 
 (defun range (low high &optional (step 1))
-  (loop for i from low to high by step collect i))
+  (loop for i from low below high by step collect i))
 
 (defun take (n seq)
   (subseq seq 0 n))
