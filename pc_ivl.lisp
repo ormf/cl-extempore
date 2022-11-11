@@ -317,21 +317,21 @@
 |#
 
 (defun quantize (keynum pc-set)
-  "quantize keynum to the closest keynum acording to pc-set. pc-set
-has to be sorted in ascending order."
-  (multiple-value-bind (oct pc-in) (floor (round keynum) 12)
-    (multiple-value-bind (low high)
-        (if (< pc-in (first pc-set))
-            (values (- (first (last pc-set)) 12) (first pc-set))
-            (loop
-              for (low high) on pc-set
-              while high until (<= low pc-in high)
-              finally (return
-                        (if high
-                            (values low high)
-                            (values low (+ (first pc-set) 12))))))
-      (+ (* oct 12) (if (< (- pc-in low) (- high pc-in))
-                        low high)))))
+  "quantize keynum to the closest keynum acording to pc-set."
+  (let ((pc-set (sort pc-set #'<)))
+    (multiple-value-bind (oct pc-in) (floor (round keynum) 12)
+      (multiple-value-bind (low high)
+          (if (< pc-in (first pc-set))
+              (values (- (first (last pc-set)) 12) (first pc-set))
+              (loop
+                for (low high) on pc-set
+                while high until (<= low pc-in high)
+                finally (return
+                          (if high
+                              (values low high)
+                              (values low (+ (first pc-set) 12))))))
+        (+ (* oct 12) (if (< (- pc-in low) (- high pc-in))
+                          low high))))))
 
 ;;; (quantize 60 '(2 4 5 7 8 11)) -> 59
 
@@ -554,8 +554,7 @@ num-steps can extend several octaves up or down."
 ;; returns a chord given a root and type
 ;; see *chord-syms* for currently available types
 ;;
-;; e.g. (chord 0 '^7)  => '(0 4 7 11)
-
+;; e.g. (chord 11 '^7)  => '(0 4 7 11)
 
 (defun chord (root type &key (sort nil))
   "return the pc-set of a chord with given root and type, optionally
@@ -623,7 +622,8 @@ Example: (chord-options 2 '^ (scale 0 'ionian)) => ((0 4 7) (0 4 7 11) (0 5 7) (
 ;;
 ;; (make-chord-fixed 60 3 '(0 3 7))      => (60 63 67)
 ;; (make-chord-fixed 60 3 '(0 3 7) 'top) => (51 55 60)
-;;
+;; (make-chord-fixed 60 3 '(11 2 4))
+
 
 (defun make-chord-fixed (fix-point num pc-set &rest args)
   "return a chord of n keynums corresponding to the pc-set starting or
@@ -636,7 +636,7 @@ fix-point, otherwise the highest keynum will be closest."
       with dir = (if (null args) 1 (if (eq 'bottom (car args)) 1 -1))
       for keynum = (quantize fix-point pc-set) then (relative keynum dir pc-set)
       collect keynum into result
-      finally (if (= dir -1) (return (reverse result)) (return result)))))
+      finally (return (sort result #'<)))))
 
 ;; distance between pitch and a pc
 (defun distance (keynum pc)

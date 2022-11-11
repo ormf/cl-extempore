@@ -72,3 +72,28 @@
 
 (defmacro sinr (mid dev beats-per-cycle)
   `(round (+ ,mid (* ,dev (sin (* +TWOPI+ beat ,beats-per-cycle))))))
+
+(defun range (low high &optional (step 1))
+  (loop for i from low to high by step collect i))
+
+(defun take (n seq)
+  (subseq seq 0 n))
+
+;;; (take 4 (range 2 10)) -> (2 3 4 5)
+
+(defun zip (&rest seqs)
+  (apply #'append (apply #'mapcar #'list seqs)))
+
+;;; (zip '(1 2) '(3 4)) -> (1 3 2 4)
+
+(defun pedal (e seq)
+  (apply #'append (mapcar (lambda (x) (list e x)) seq)))
+
+(defun jumble (seq)
+  (shuffle seq))
+
+(defun orbit (val mod then else)
+  (if (zerop (mod val mod)) then else))
+
+(defun orb (val mod then else)
+  (if (zerop (mod val mod)) then else))

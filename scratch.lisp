@@ -101,14 +101,184 @@
 
 (defun model6 (a b c d))
 
+(range 0 3)
+
+(diatonic 0 '- 'ii)
+
+(defun model3 (beat dur degree)
+  (let ((chrd (make-chord-fixed 60 3 (diatonic 0 '^ degree))))
+    (map nil (lambda (p o)
+               (play (+ beat o) :piano p 80 dur))
+         chrd
+         (range 0 3)))
+  (at (*metro* (+ beat (* 0.5 dur))) #'model3
+      (+ beat dur)
+      3
+      (r-elt (cdr (assoc degree '((i v vii ii iv vi)
+                                  (iv i)
+                                  (vi iv)
+                                  (ii v)
+                                  (v i vi)
+                                  (vii i vi)))))))
+
+(defun model3 (beat dur degree)
+  (let ((chrd (make-chord-fixed 60 3 (diatonic 0 '^ degree))))
+    (map nil (lambda (p o)
+               (play (+ beat o) :piano p 80 dur))
+         chrd
+         (range 0 3)))
+  (at (*metro* (+ beat (* 0.5 dur))) #'model3
+      (+ beat dur)
+      3
+      (r-elt (cdr (assoc degree '((i iv v)
+                                  (iv v)
+                                  (v i)))))))
+
+(model3 (*metro* 'get-beat 4) 3 'i)
+
+(*metro* 'set-tempo 140)
+
+
+(defun model4 (beat dur seq)
+  (play beat :piano (first seq) 80 dur)
+  (at (*metro* (+ beat (* 0.5 dur))) #'model4
+      (+ beat dur)
+      dur
+      (rotate seq)))
+
+(model4 (*metro* 'get-beat 1) 1 '(60 62 63 64))
+
+(defun alberti-fuer-doofe (beat dur degree)
+  (let* ((new
+             (r-elt (cdr
+                     (assoc degree '((i iv v vi viio n6)
+                                     (n6 viio v i)
+                                     (viio i)
+                                     (vi iv)
+                                     (iv i)
+                                     (v i vi))))))
+         (chrd (make-chord-fixed 60 8 (diatonic 0 '^ new))))
+    (map nil (lambda (p o)
+               (play (+ beat o) :piano (elt chrd p) 80 dur))
+         (range 0 7)
+         (range 0 7))
+    (at (*metro* (+ beat (* 0.5 dur))) #'alberti-fuer-doofe
+        (+ beat dur)
+        8 new)))
+
+(alberti-fuer-doofe (*metro* 'get-beat 4) 8 'i)
+
+;;; (shuffle (range 0 5))
+
+'((i iv v vi viio n6)
+  (n6 viio v i)
+  (viio i)
+  (vi iv)
+  (iv i)
+  (v i vi))
+
+'((i iv v vi viio n6)
+                                     (n6 viio v i)
+                                     (viio i)
+                                     (vi iv)
+                                     (iv i)
+                                     (v i vi))
+
+(diatonic 0 '- 'i)
+
+(make-chord-fixed 60 6 (diatonic 0 '^ 'i))
+
+(alberti-fuer-doofe (*metro* 'get-beat 4) 8 'i)
+
+(defun alberti-fuer-doofe (beat dur degree)
+  (let* ((new
+             (r-elt (cdr
+                     (assoc degree '((i iv v vi viio n6)
+                                     (n6 viio v i)
+                                     (viio i)
+                                     (vi iv)
+                                     (iv i)
+                                     (v i vi))))))
+         (chrd (make-chord-fixed 60 6 (diatonic 0 '^ new))))
+    (map nil (lambda (p o)
+               (play (+ beat o) :piano (elt chrd p) 80 dur))
+         '(0 2 1 2 0 2 1 2)
+         (range 0 7))
+    (at (*metro* (+ beat (* 0.5 dur))) #'alberti-fuer-doofe
+        (+ beat dur)
+        8 new)))
+
+(defun alberti-fuer-doofe (beat dur degree)
+  (let* ((new
+             (r-elt (cdr
+                     (assoc degree '((i iv v vi viio n6)
+                                     (n6 viio v i)
+                                     (viio i)
+                                     (vi iv)
+                                     (iv i)
+                                     (v i vi))))))
+         (chrd (make-chord-fixed 60 6 (diatonic -2 '^ new))))
+    (map nil (lambda (p o)
+               (play (+ beat o) :piano (elt chrd p) 80 dur))
+         (append (range 0 4) (reverse (range 1 3)))
+         (range 0 7))
+    (at (*metro* (+ beat (* 0.5 dur))) #'alberti-fuer-doofe
+        (+ beat dur)
+        8 new)))
+
+(next (new cycle :of '(i iv v vi viio n6)) 200)
 
 
 
-(let ((beat (*metro* 'get-beat)))
-  (samples->secs (- (*metro* 'get-time (+ beat 1/4))
-                    (*metro* 'get-time beat))))
+(defun alberti-fuer-doofe (beat dur degree)
+  (let* ((new
+           (r-elt (cdr
+                   (assoc degree '((i iv)
+                                   (ii v)
+                                   (iii vi)
+                                   (iv ii)
+                                   (vi ii)
+                                   (vii iii)
+                                   (v i))))))
+         (chrd (make-chord-fixed 60 3 (diatonic 0 '- new))))
+    (map nil (lambda (p o)
+               (play (+ beat o) :piano (elt chrd p) 80 dur))
+         '(0 2 1 2 0 2 1 2)
+         (range 0 7))
+    (at (*metro* (+ beat (* 0.5 dur))) #'alberti-fuer-doofe
+        (+ beat dur)
+        8 new)))
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+(defun alberti-fuer-doofe (beat dur degree)
+  (let ((chrd (make-chord-fixed 60 3 (diatonic 0 '- degree))))
+    (map nil (lambda (p o)
+               (play (+ beat o) :piano (elt chrd p) 80 dur))
+         '(0 2 1 2 0 2 1 2)
+         (range 0 7)))
+  (at (*metro* (+ beat (* 0.5 dur))) #'alberti-fuer-doofe
+      (+ beat dur)
+      8
+      (r-elt (cdr (assoc degree '((i vi)
+                                  (iv v)
+                                  (ii v)
+                                  (vi ii)
+                                  (v i)))))))
+
+(alberti-fuer-doofe (*metro* 'get-beat 4) 8 'i)
 
 
 

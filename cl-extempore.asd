@@ -11,4 +11,5 @@
                (:file "utils")
                (:file "pc_ivl")
                (:file "metro")
+               (:file "patterns")
                (:file "cl-extempore")))
