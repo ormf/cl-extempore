@@ -27,9 +27,16 @@
 
 (defmacro :> (name len offs expr &rest seqs)
   (let* ((sqs (mapcar #'eval seqs))
-         (dur (/ (rationalize len) (apply #'max (mapcar #'length sqs)))))
-    `(progn
+         (len (rationalize len))
+         (dur (/ len (apply #'max (mapcar #'length sqs)))))
+    `(let ((LC -1)
+           (LL len)
+           (LP 0)
+           startbeat)
        (defun ,name (beat dur seqs)
+         (unless startbeat
+           (setf startbeat beat))
+         (multiple-value-setf (LC LP) (floor (- beat startbeat) len))
          (apply (lambda ,(construct-var-list (length seqs)) ,expr) (mapcar #'first seqs))
          (at (*metro* (+ beat (* 0.5 dur))) #',name
              (+ beat dur) dur
