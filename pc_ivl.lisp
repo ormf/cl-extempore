@@ -286,7 +286,6 @@
      (vii . (11 . locrian))
      (vii7 . (11 . locrian))))
 
-
 ;; return the pitch class of pitch
 
 (defun pc (pitch)
@@ -404,26 +403,35 @@
     (sort (apply #'append (mapc-setar #'inner pc-set)) #'<)))
 |#
 
-(defun get-all-keynums-in-range (pc-set lower upper)
-  "return all keynums in range [lower..upper["
+(defun get-all-keynums-in-range (lower upper pc-set)
+  "return all keynums in range [lower..upper[ according to pc-set"
   (let* ((oct (floor lower 12)))
     (loop for startkey from (* oct 12) below upper by 12
-          append (loop for offs in pc-set for keynum = (+ startkey offs) while (< keynum upper) if (< lower keynum) collect keynum))))
+          append (loop
+                   for offs in pc-set
+                   for keynum = (+ startkey offs)
+                   while (< keynum upper)
+                   if (<= lower keynum)
+                     collect keynum))))
 
-;;; (get-all-keynums-in-range '(0 4 7) 30 90)
+;;; (get-all-keynums-in-range 60 66 '(0 4 7)) -> (60 64) 
 
-;;; (get-all-keynums-in-range '(4) 56 69)
+;;; (get-all-keynums-in-range 56 69 '(4)) ->  64
 
 (defun r-elt (seq)
-  "return a reandom elemnt from seq (same es pc:random in extempore)"
+  "return a random element from seq (same es pc:random in extempore)"
   (elt seq (random (length seq))))
 
 (defun r-pc (lower upper pc-set)
   "return a random keynum contained in pc-set in the range
 [lower..upper]."
   (unless (null pc-set)
-      (let ((choices (get-all-keynums-in-range pc-set lower upper)))
+      (let ((choices (get-all-keynums-in-range lower upper pc-set)))
         (unless (null choices) (r-elt choices)))))
+
+;;; (r-pc 60 72 '(0 4 7))
+
+(setf (fdefinition 'pc-random) #'r-pc)
 
 ;; select pitch from pitch class relative to a given pitch
 ;;
@@ -469,21 +477,22 @@ num-steps can extend several octaves up or down."
 ;; arg4: pitch class
 ;;
 ;; example: c7
-;; (make-chord 60 85 4 '(0 4 7 10)) => (60 70 76 79)
+;; (make-chord 60 85 4 '(0 4 7) :unique nil) => (60 70 76 79)
 ;;
 
-(defun make-chord (lower upper num pc-set &key (unique nil))
+(defun pc-make-chord (lower upper num pc-set)
   (let* ((gap (round (/ (- upper lower) num))))
     (sort
      (loop repeat num
            with remaining-pcs = pc-set
+           while remaining-pcs
            for l from (round lower) by gap
-           for keynum = (or (r-pc l (+ l gap) remaining-pcs) (r-pc lower upper remaining-pcs))
-           collect keynum
-           do (if unique (setf remaining-pcs (remove (pc keynum) remaining-pcs))))
+           for keynum = (or (r-pc l (+ l gap) remaining-pcs) (r-pc lower upper remaining-pcs)(r-pc lower upper pc-set))
+           if keynum collect keynum
+           do (setf remaining-pcs (remove (pc keynum) remaining-pcs)))
      #'<)))
 
-;;; (sort (mapcar #'pc (make-chord 30 70 3 '(0 4 7) :unique t)) #'<)
+;;; (sort (mapcar #'pc (make-chord 30 70 4 '(0 4 7 10))) #'<)
 
 ;; Returns a scale degree (zero-based) of a given value (pitch) based on a pc
 (defun degree (value pc-set)
@@ -557,7 +566,7 @@ num-steps can extend several octaves up or down."
 ;; returns a chord given a root and type
 ;; see *chord-syms* for currently available types
 ;;
-;; e.g. (pc-chord 11 '^7)  => '(0 4 7 11)
+;; e.g. (pc-chord 0 '^7)  => '(0 4 7 11)
 
 (defun pc-chord (root type &key (sort nil))
   "return the pc-set of a chord with given root and type, optionally
@@ -730,14 +739,12 @@ keynum and a pc-set."
 
 ;; attempts to return a reasonable scale based on the chord and root provided
 (defun scale-from-chord (root chord)
-  (let ((res (find-if (lambda (v)
-                        (equal (car v) chord))
-                      (mapcar (lambda (scale)
-                             (cons (intersection chord scale) scale))
-                           (mapcar (lambda (type)
-                                  (pc-scale root type))
-                                '(ionian aeolian mixolydian lydian phrygian locrian
-                                  dorian lydian-mixolydian wholetone chromatic))))))
+  "attempts to return a reasonable scale based on the chord and root provided"
+  (let ((res (find-if (lambda (v) (equal (car v) chord))
+                      (mapcar (lambda (scale) (cons (intersection chord scale) scale))
+                              (mapcar (lambda (type) (pc-scale root type))
+                                      '(ionian aeolian mixolydian lydian phrygian locrian
+                                        dorian lydian-mixolydian wholetone chromatic))))))
     (if (consp res) (cdr res) chord)))
 
 #|

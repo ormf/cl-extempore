@@ -1,5 +1,5 @@
 ;;; 
-;;; cl-extempore.lisp
+;;; globals.lisp
 ;;;
 ;;; **********************************************************************
 ;;; Copyright (c) 2022 Orm Finnendahl <orm.finnendahl@selma.hfmdk-frankfurt.de>
@@ -20,4 +20,7 @@
 
 (in-package :cl-extempore)
 
-(define-metro *metro* 110)
+(defparameter *root* 0)
+(defparameter *scale* (pc-scale 0 'ionian))
+(defparameter *chord* (pc-make-chord 44 72 4 (pc-chord 0 '^)))
+

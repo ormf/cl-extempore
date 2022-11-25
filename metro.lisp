@@ -101,9 +101,10 @@
             ((eq sym 'push) (setf loffset (+ loffset 256)))
             ((eq sym 'pull) (setf loffset (- loffset 256)))
             ((eq sym 'get-beat)
-             (let ((val (+ total-beats
-                           (/ (- (now) mark)
-                              (* *samplerate* g-tempo))))
-                   (quantize (if (null args) 1.0 (car args))))
-               (rationalize (+ val (- quantize (mod val quantize))))))
+             (progn
+               (let ((val (+ total-beats
+                             (/ (- (now) mark)
+                                (* *samplerate* g-tempo))))
+                     (quantize (if (or (null args) (<= (car args) 0)) 1.0 (car args))))
+                 (rationalize (+ val (- quantize (mod val quantize)))))))
             (:else 'bad-method-name)))))

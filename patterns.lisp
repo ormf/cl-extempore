@@ -24,43 +24,197 @@
 (defparameter *chord* '(36 60 63 67))
 (defparameter *scale* (pc-scale 0 'aeolian))
 
-(defun construct-var-list (num)
-  (loop
-    for n from 1 to num
-    collect (intern (string-upcase (format nil "@~d" n)) 'cl-extempore)))
+(defun first-as-list (seq)
+  "ensure first elem of seq is returned as a list."
+  (if (listp (first seq)) (first seq) (list (first seq))))
 
-(defmacro :> (name len offs expr &rest seqs)
-  (let* ((sqs (mapcar #'eval seqs))
+(defun construct-var-list (num)
+  (append '(lc ll lp dur beat)
+          (loop
+            for n from 1 to num
+            collect (intern (string-upcase (format nil "@~d" n)) 'cl-extempore))))
+
+(defun expand-args (seqs)
+  (loop for x in seqs collect
+        `(length ,x)))
+
+#|
+;;; version with repeat arg directly after the :>
+
+(defmacro :> (&rest args)
+  (let* ((repeats (if (numberp (first args)) (pop args)))
+         (name (pop args))
+         (len (pop args))
+         (offs (pop args))
+         (expr (pop args))
+         (seqs args)
          (len (rationalize len))
-         (dur (/ len (apply #'max (mapcar #'length sqs)))))
-    `(let ((LC -1)
-           (LL len)
-           (LP 0)
-           startbeat)
-       (defun ,name (beat dur seqs)
-         (unless startbeat
-           (setf startbeat beat))
-         (multiple-value-setf (LC LP) (floor (- beat startbeat) len))
-         (apply (lambda ,(construct-var-list (length seqs)) ,expr) (mapcar #'first seqs))
-         (at (*metro* (+ beat (* 0.5 dur))) #',name
-             (+ beat dur) dur
-             (mapcar #'rotate seqs)))
-       (,name (*metro* 'get-beat ,offs) ,dur ',sqs))))
+;;;;         (dur (/ len (apply #'max (mapcar #'length seqs))))
+         
+         (varlist (construct-var-list (length seqs)))
+         )
+    `(let* ((lc -1)
+            (ll ,len)
+            (lp 0)
+            (continue t)
+            (repeats ,repeats)
+            (dur (/ ll (length ,(first seqs))))
+;;;;            (dur (/ ,len (max ,@(expand-args seqs)))) ;;; alternativ: maximale Länge aller Listen
+            (fn (lambda ,varlist (declare (ignorable ,@varlist)) ,expr))
+            startbeat)
+       (defun ,name (beat dur depth seqs)
+         (multiple-value-setq (LC LP) (floor (- beat startbeat) ll))
+         (when (zerop lp)
+           (setf seqs (list ,@seqs))
+           (when repeats
+             (decf repeats)
+             (if (< repeats 0) (setf continue nil))))
+         (when continue
+           (when (first seqs)
+             (if (consp (caar seqs))
+                 (,name beat (/ dur (length (caar seqs))) (1+ depth) (mapcar #'first-as-list seqs))
+                 (apply fn lc ll lp dur beat (mapcar #'first seqs))))
+           (when (or (and (zerop depth) continue) (cadar seqs))
+             (at (*metro* (+ beat (* 0.5 dur))) #',name
+                 (+ beat dur) dur depth
+                 (cons (if (zerop depth)
+                           (rotate (first seqs))
+                           (cdr (first seqs)))
+                       (mapcar #'rotate (cdr seqs)))))))
+       (setf startbeat (*metro* 'get-beat ,offs))
+       (,name (*metro* 'get-beat ,offs) dur 0 (list ,@seqs)))))
+
+|#
+
+;;; version with optional repeat arg directly after the expr
+
+(defmacro :> (name len offs expr &rest repeats-seqs)
+  (let* ((len (rationalize len))
+;;;;         (dur (/ len (apply #'max (mapcar #'length seqs))))
+         (repeats (if (numberp (first repeats-seqs)) (pop repeats-seqs)))
+         (seqs repeats-seqs)
+         (varlist (construct-var-list (length seqs)))
+         )
+    `(let* ((lc -1)
+            (ll ,len)
+            (lp 0)
+            (continue t)
+            (repeats ,repeats)
+            (dur (/ ll (length ,(first seqs))))
+;;;;            (dur (/ ,len (max ,@(expand-args seqs)))) ;;; alternativ: maximale Länge aller Listen
+            (fn (lambda ,varlist (declare (ignorable ,@varlist)) ,expr))
+            startbeat)
+       (defun ,name (beat dur depth seqs)
+         (multiple-value-setq (LC LP) (floor (- beat startbeat) ll))
+         (when (zerop lp)
+           (setf seqs (list ,@seqs))
+           (when repeats
+             (decf repeats)
+             (if (< repeats 0) (setf continue nil))))
+         (when continue
+           (when (first seqs)
+             (if (consp (caar seqs))
+                 (,name beat (/ dur (length (caar seqs))) (1+ depth) (mapcar #'first-as-list seqs))
+                 (apply fn lc ll lp dur beat (mapcar #'first seqs))))
+           (when (or (and (zerop depth) continue) (cadar seqs))
+             (at (*metro* (+ beat (* 0.5 dur))) #',name
+                 (+ beat dur) dur depth
+                 (cons (if (zerop depth)
+                           (rotate (first seqs))
+                           (cdr (first seqs)))
+                       (mapcar #'rotate (cdr seqs)))))))
+       (setf startbeat (*metro* 'get-beat ,offs))
+       (,name (*metro* 'get-beat ,offs) dur 0 (list ,@seqs)))))
+
+
+(defmacro :> (name len offs expr &rest repeats-seqs)
+  (let* ((len (rationalize len))
+;;;;         (dur (/ len (apply #'max (mapcar #'length seqs))))
+         (repeats (if (numberp (first repeats-seqs)) (pop repeats-seqs)))
+         (seqs repeats-seqs)
+         (varlist (construct-var-list (length seqs)))
+         )
+    `(let* ((lc -1)
+            (start? (not (fboundp ',name)))
+            (ll ,len)
+            (lp 0)
+            (continue t)
+            (repeats ,repeats)
+            (dur (/ ll (length ,(first seqs))))
+;;;;            (dur (/ ,len (max ,@(expand-args seqs)))) ;;; alternativ: maximale Länge aller Listen
+            (fn (lambda ,varlist (declare (ignorable ,@varlist)) ,expr))
+            startbeat)
+       (defun ,name (&optional beat dur depth seqs)
+         (multiple-value-setq (LC LP) (floor (- beat startbeat) ll))
+         (when (and (zerop depth) (zerop lp))
+           (setf seqs (list ,@seqs))
+           (when repeats
+             (decf repeats)
+             (if (< repeats 0) (setf continue nil))))
+         ;; (break "pat-1: beat: ~a, dur: ~a, depth: ~a, seqs: ~a~%"
+         ;;        beat dur depth seqs)
+         (when continue
+           (when (first seqs)
+             (if (consp (caar seqs))
+                 (when (fboundp ',name)
+                   (,name beat (/ dur (length (caar seqs))) (1+ depth) (mapcar #'first-as-list seqs)))
+                 (apply fn lc ll lp dur beat (mapcar #'first seqs))))
+           (when (or (and (zerop depth) continue (fboundp ',name)) (cadar seqs))
+             (at (*metro* (+ beat (* 0.5 dur))) #',name
+                 (+ beat dur) dur depth
+                 (cons (if (zerop depth)
+                           (rotate (first seqs))
+                           (cdr (first seqs)))
+                       (mapcar #'rotate (cdr seqs)))))))
+       (setf startbeat (*metro* 'get-beat ,offs))
+       (when start?
+         (,name (*metro* 'get-beat ,offs) dur 0 (list ,@seqs))))))
+
+;;; (:> pat-1 2 2 (play beat :flute @1 80 dur) (list 60 58 60 (cycle lc 1 '(72 67) '(73 72))) '(60 62 65))
+;;; (pat-1 'set-seqs '(list 60 58 60 (cycle lc 1 '(72 67) '(73 72))) '(60 62 65))
+
+;;; (mapcar #'rotate (mapcar #'first-as-list '(((60 62) (60 64)) (62 (60 64)))))
+
+
+
+#|
+
+(defmacro get-length (list)
+  `(length (let ((lc 0)) ,list)))
+
+;;; (get-length (list 60 58 60 (cycle lc 1 '(72 67) '(73 72))))
+
+|#
+
+
+
+
 
 (defmacro :< (name len offs expr &rest seqs)
   (declare (ignore len offs expr seqs))
   `(progn
-     (defun ,name (beat dur seqs)
-       (declare (ignore beat dur seqs)))))
+;;;     (fmakunbound ',name)
+     (defun ,name (beat dur depth seqs)
+       (declare (ignore beat dur depth seqs))
+       (fmakunbound ',name)
+;;;       (at (+ 1000 (now)) (lambda () (fmakunbound ',name)))
+       )))
+
+
 
 #|
 ;;; (:> model4 8 1 (print @1) '(48 52 55 60 64 55 60 64))
 (:> model4 8 4 (play beat :piano @1 80 dur) '(48 52 55 60 64 55 60 64))
 (:> model4 8 4 (play beat :piano @1 @2 dur) '(48 52 55 60 64 55 60 64) '(80 60 40))
 (:< model4 8 4 (play beat :piano @1 @2 dur) '(48 52 55 60 64 55 60 64) '(80 60 40))
+
 |#
 
+
 #|
+
+
+
 
 (defun filter (pred seq)
   (reverse (reduce (lambda (acc x) (if (funcall pred x) (cons x acc) acc)) seq :initial-value '())))
@@ -152,6 +306,20 @@ nth arg is repeated before advancing to the next."
       finally (return result)))
 
 ;;; (take-while 4 (lambda (x) (> x 12)) (range 0 20)) -> (13 14 15 16)
+
+(defun holder ()
+  (let ((cache '()))
+    (lambda (lc1 expr LC LP LL)
+      (if (null cache) (setf cache expr))
+      (if (and (= (mod LP LL) 0)
+               (= (mod LC lc1) 0))
+          (setf cache expr))
+      cache)))
+
+(defmacro hold (h pos expr)
+  (let* ((localpos (mod pos 1))
+         (num (- pos localpos)))
+    `(,h ,num ,expr LC LP LL)))
 
 #|
 ;; scale, qnt and rel take an optional *scale* argument
@@ -296,22 +464,22 @@ nth arg is repeated before advancing to the next."
                  (map (lambda (x y) (list x y))
                       (range 0 (length lst)) (rotate lst r))))))
 
-(define holder
-  (lambda ()
-    (let ((cache '()))
-      (lambda (lc expr LC LP LL)
-        (if (null? cache) (set! cache expr))
-        (if (and (= (modulo LP LL) 0)
-                 (= (modulo LC lc) 0))
-            (set! cache expr))
-        cache))))
-
-(define-macro (hold h pos expr)
-  (let* ((localpos (modulo pos 1))
-         (num (- pos localpos)))
-    `(,h ,num ,expr LC LP LL)))
-
 |#
+
+(defun holder ()
+  (let ((cache '()))
+    (lambda (lc_ expr LC LP LL)
+      (if (null cache) (setf cache expr))
+      (if (and (= (mod LP LL) 0)
+               (= (mod LC lc_) 0))
+          (setf cache expr))
+      cache)))
+
+(defmacro hold (h pos expr)
+  (let* ((localpos (mod pos 1))
+         (num (- pos localpos)))
+    `(funcall ,h ,num ,expr LC LP LL)))
+
 
 (setf (fdefinition 'rnd) #'r-elt)
 (setf (fdefinition '%) #'mod)

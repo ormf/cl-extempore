@@ -6,10 +6,14 @@
   :license  "GPL 2.0 or later"
   :version "0.0.1"
   :serial t
-  :depends-on (#:cm #:cm-all #:incudine)
+  :depends-on (#:cm #:cm-all #:incudine #:cl-ansi-text)
   :components ((:file "package")
                (:file "utils")
+               (:file "perform")
                (:file "pc_ivl")
+               (:file "globals")
                (:file "metro")
                (:file "patterns")
+               (:file "instruments")
+               (:file "playp")
                (:file "cl-extempore")))

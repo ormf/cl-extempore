@@ -43,29 +43,70 @@
 (defun samples->secs (samples)
   (float (/ samples *samplerate*) 1.0))
 
-(defparameter *instruments*
-  '(:piano (:type midi :channel 0 :pgm 0)))
+(defmacro onbeat? (b of tval &rest f)
+  (if (null f)
+      `(if (= (mod beat ,of) (- ,b 1))
+           ,tval)
+      `(if (= (mod beat ,of) (- ,b 1))
+           ,tval ,(car f))))
 
-(defun piano (&rest args)
-  (apply #'make-instance 'midi :time (getf args :time) args))
+;;; (play-note (*metro* 'get-beat 1) :fingered-bass 36 80 *samplerate* :channel 2)
 
-(defun piano1 (&rest args)
-  (apply #'make-instance 'midi :time (getf args :time) :channel 0 args))
+#|
 
-(defun piano2 (&rest args)
-  (apply #'make-instance 'midi :time (getf args :time) :channel 1 args))
+(defun redefine-keys (sym keys dur)
+  (append `((,sym ,(if (listp keys) (first keys) keys)))
+          (list (list 'dur (if (and (listp keys) (or (numberp (first keys)) (vectorp (first keys))) (eq (second keys) '~))
+                               (* dur (loop for x in (cddr keys) for num from 2 while (eq x '~) finally (return num))) dur)))))
 
-(defun play-note (time instr keynum amp dur)
-  (sprout
-   (funcall (symbol-function (intern (string-upcase (format nil "~a" instr)) 'cl-extempore))
-            :time (samples->secs (- time (now))) :keynum keynum :amplitude amp
-            :duration (samples->secs dur))))
+(let ((dur 4)
+      (keynum '(64 ~ ~)))
+  (with-special-chars (keys keynum)
+                      (play-note dur)))
 
+(defmacro with-special-chars ((sym keys dur) &rest body)
+  `(let ,(redefine-keys sym keys dur)
+     ,@body))
 
-(defmacro play (time instr keynum amp dur)
-  `(play-note (*metro* 'get-time ,time) ,instr ,keynum (max 0 (min 127 ,amp))
-                (- (*metro* 'get-time (+ beat ,dur))
-                   (*metro* 'get-time beat))))
+(with-special-chars (keys (60 ~ #(72 75) (60 61 62)) 4)
+                    (if keys
+                        (map nil (lambda (key) (play-note (*metro* 'get-time beat) instr key (max 0 (min 127 amp))
+                                                     (- (*metro* 'get-time (+ beat dur))
+                                                        (*metro* 'get-time beat))))
+                             (cond
+                               ((vectorp keys) (coerce keys 'list))
+                               ((listp keys) (let* ((len (length keys))
+                                                    (dur (/ dur len)))
+                                               (map nil (lambda (key o) (play (+ beat o) instr key amp dur))
+                                                    keys
+                                                    (mapcar (lambda (x) (* x dur)) (range 0 len)))))
+                               ((member keys '(_ ~)) nil)
+                               (:else (list keys))))))
+|#
+
+#|
+(defun play (beat instr keynum amp dur)
+  (declare (special LC LL LP))
+  (with-special-chars (keys keynum dur)
+    (map nil (lambda (key) (play-note (*metro* 'get-time beat) instr key (max 0 (min 127 amp))
+                                 (- (*metro* 'get-time (+ beat dur))
+                                    (*metro* 'get-time beat))))
+         (cond
+           ((vectorp keys) (coerce keys 'list))
+           ((listp keys) (let* ((len (length keys))
+                                (dur (/ dur len)))
+                           (map nil (lambda (key o) (play (+ beat o) instr key amp dur))
+                                keys
+                                (mapcar (lambda (x) (* x dur)) (range 0 len)))))
+           ((member keys '(_ ~)) nil)
+           (:else (list keys))))))
+|#
+
+(defun get-durfactor (keynum)
+  (let ((keys (first keynum)))
+    (if (and (listp keynum) (or (numberp keys) (vectorp keys)) (eq (second keynum) '~))
+        (loop for x in (cddr keynum) with num = 2 while (eq x '~) do (if (eq x '~) (incf num)) finally (return num))
+        1)))
 
 (defmacro cosr (mid dev beats-per-cycle &key (phase 0))
   `(round (+ ,mid (* ,dev (cos (+ (*,phase +TWOPI+) (* +TWOPI+ beat ,beats-per-cycle)))))))
