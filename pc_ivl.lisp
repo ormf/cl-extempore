@@ -1,8 +1,9 @@
 ;;; 
-;;; pv_iv.lisp
+;;; pc_ivl.lisp
 ;;;
-;;; translation/adaption of parts of Andrew Sorensen's code from
-;;; extempore (https://github.com/digego/extempore) to Common Lisp
+;;; pitch class/interval related code. translation/adaption of parts
+;;; of Andrew Sorensen's code from extempore
+;;; (https://github.com/digego/extempore) to Common Lisp
 ;;;
 ;;; The original scheme Code is Copyright (c) 2011-2020, Andrew
 ;;; Sorensen

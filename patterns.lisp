@@ -1,6 +1,13 @@
 ;;; 
 ;;; patterns.lisp
 ;;;
+;;; (re)implementation of the pattern language of extempore. The code
+;;; is a translation/adaption of parts of Andrew Sorensen's code from
+;;; extempore (https://github.com/digego/extempore) to Common Lisp
+;;;
+;;; The original scheme Code is Copyright (c) 2011-2020, Andrew
+;;; Sorensen
+;;;
 ;;; **********************************************************************
 ;;; Copyright (c) 2022 Orm Finnendahl <orm.finnendahl@selma.hfmdk-frankfurt.de>
 ;;;
