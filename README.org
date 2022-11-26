@@ -71,11 +71,11 @@ Sorensen. Needs incudine, jack and a midi sampler.
 ** Extensions
 
    Other instruments, like software/dsp/incudine based synths can be
-   easily get added using define-instrument. This function should
+   easily get added using =define-instrument=. This function should
    return a closure which will produce sound when called with the
-   =:time= =:keynum= =:duration= and =:amp= properties. Additional
-   properties specific to the synth can get added at the end of a call
-   to the =#'play= function.
+   =:time= =:keynum= =:duration= and =:amp= properties (e.g. using the
+   =play= function). Additional properties specific to the synth can
+   get added at the end of a call to the =#'play= function.
    
 ** License
 
