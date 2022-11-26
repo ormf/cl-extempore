@@ -20,6 +20,12 @@
 
 (in-package :cl-extempore)
 
+(defparameter *patterns* nil)
+
+(defun unbind-all-patterns ()
+  (dolist (p *patterns*)
+    (fmakunbound p)))
+
 (defparameter *root* 0)
 (defparameter *chord* '(36 60 63 67))
 (defparameter *scale* (pc-scale 0 'aeolian))
@@ -84,10 +90,6 @@
        (setf startbeat (*metro* 'get-beat ,offs))
        (,name (*metro* 'get-beat ,offs) dur 0 (list ,@seqs)))))
 
-|#
-
-;;; version with optional repeat arg directly after the expr
-
 (defmacro :> (name len offs expr &rest repeats-seqs)
   (let* ((len (rationalize len))
 ;;;;         (dur (/ len (apply #'max (mapcar #'length seqs))))
@@ -124,8 +126,11 @@
                            (cdr (first seqs)))
                        (mapcar #'rotate (cdr seqs)))))))
        (setf startbeat (*metro* 'get-beat ,offs))
-       (,name (*metro* 'get-beat ,offs) dur 0 (list ,@seqs)))))
+(,name (*metro* 'get-beat ,offs) dur 0 (list ,@seqs)))))
 
+|#
+
+;;; version with optional repeat arg directly after the expr
 
 (defmacro :> (name len offs expr &rest repeats-seqs)
   (let* ((len (rationalize len))
@@ -153,21 +158,24 @@
              (if (< repeats 0) (setf continue nil))))
          ;; (break "pat-1: beat: ~a, dur: ~a, depth: ~a, seqs: ~a~%"
          ;;        beat dur depth seqs)
-         (when continue
-           (when (first seqs)
-             (if (consp (caar seqs))
-                 (when (fboundp ',name)
-                   (,name beat (/ dur (length (caar seqs))) (1+ depth) (mapcar #'first-as-list seqs)))
-                 (apply fn lc ll lp dur beat (mapcar #'first seqs))))
-           (when (or (and (zerop depth) continue (fboundp ',name)) (cadar seqs))
-             (at (*metro* (+ beat (* 0.5 dur))) #',name
-                 (+ beat dur) dur depth
-                 (cons (if (zerop depth)
-                           (rotate (first seqs))
-                           (cdr (first seqs)))
-                       (mapcar #'rotate (cdr seqs)))))))
+         (if continue
+             (progn
+               (when (first seqs)
+                 (if (consp (caar seqs))
+                     (when (fboundp ',name)
+                       (,name beat (/ dur (length (caar seqs))) (1+ depth) (mapcar #'first-as-list seqs)))
+                     (apply fn lc ll lp dur beat (mapcar #'first seqs))))
+               (when (or (and (zerop depth) continue (fboundp ',name)) (cadar seqs))
+                 (at (*metro* (+ beat (* 0.5 dur))) #',name
+                     (+ beat dur) dur depth
+                     (cons (if (zerop depth)
+                               (rotate (first seqs))
+                               (cdr (first seqs)))
+                           (mapcar #'rotate (cdr seqs))))))
+             (fmakunbound ',name)))
        (setf startbeat (*metro* 'get-beat ,offs))
        (when start?
+         (push ,name *seqs*)
          (,name (*metro* 'get-beat ,offs) dur 0 (list ,@seqs))))))
 
 ;;; (:> pat-1 2 2 (play beat :flute @1 80 dur) (list 60 58 60 (cycle lc 1 '(72 67) '(73 72))) '(60 62 65))
@@ -185,10 +193,6 @@
 ;;; (get-length (list 60 58 60 (cycle lc 1 '(72 67) '(73 72))))
 
 |#
-
-
-
-
 
 (defmacro :< (name len offs expr &rest seqs)
   (declare (ignore len offs expr seqs))
@@ -465,21 +469,6 @@ nth arg is repeated before advancing to the next."
                       (range 0 (length lst)) (rotate lst r))))))
 
 |#
-
-(defun holder ()
-  (let ((cache '()))
-    (lambda (lc_ expr LC LP LL)
-      (if (null cache) (setf cache expr))
-      (if (and (= (mod LP LL) 0)
-               (= (mod LC lc_) 0))
-          (setf cache expr))
-      cache)))
-
-(defmacro hold (h pos expr)
-  (let* ((localpos (mod pos 1))
-         (num (- pos localpos)))
-    `(funcall ,h ,num ,expr LC LP LL)))
-
 
 (setf (fdefinition 'rnd) #'r-elt)
 (setf (fdefinition '%) #'mod)

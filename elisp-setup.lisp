@@ -29,6 +29,7 @@
        (slime-interactive-eval "(cl-extempore:midi-panic)")
 ;;;    (slime-interactive-eval "(scratch::node-free-unprotected)")
        (slime-interactive-eval "(scratch::node-free-all)")
+       (slime-interactive-eval "(cl-extempore::unbind-all-patterns)")
 ;;;     (slime-interactive-eval "(heidelberg::osc-stop)")
 ;;;     (slime-interactive-eval "(heidelberg::osc-notes-off)")
        )))
