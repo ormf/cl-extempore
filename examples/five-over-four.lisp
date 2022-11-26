@@ -49,11 +49,11 @@
 
 (defun f1 (beat dur)
  (format t "beat: ~4,2f~%" (float beat 1.0))
-  (onbeat? 1 20
+  (onbeat? 1 10
            (progn
              (setf *root* (r-elt (remove *root* '(-2 0 3 9))))
              (setf *scale* (pc-scale *root* 'aeolian))
-                (map nil (lambda (p) (play_delta (random 3) :electric-piano-1 p 60 10 :channel 3))
+             (map nil (lambda (p) (play (+ beat (random 3)) :electric-piano-1 p 60 10 :channel 3))
                      (pc-make-chord 50 80 4 (pc-chord *root* '-7)))))
   (playp *scale* 5/4 0 :fingered-bass -24 `(60 _ 72) 110 (* 3.0 dur) :channel 1)
 ;;;  (play 0 :piano (+ *root* 48) 70 1/5 :channel 7)

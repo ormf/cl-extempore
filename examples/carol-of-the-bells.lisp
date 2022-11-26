@@ -28,10 +28,9 @@
 
 ;;;*patterns*
 
-(:> p1 2 0 (format t "~a ~a~%" @1 @2) `(48 60) '(1 2 3 4))
-
-
 (:> p1 2 0 (play beat :Pizzicato-Strings @1 50 dur :channel 2) `(48 60))
+
+(:> p1 2 0 (play beat :Pizzicato-Strings @1 @2 dur :channel 2) 4 `(48 60) '(127 40))
 
 (:> w1 3 0 (play beat :flute (if (numberp @1) (qnt (+ 12 @1)) '_) (cosr 60 10 7/4) dur :channel 3)
     `(,(hold h1 1 (r-elt '(((55 56) (58 60) (61 63) (65 67) 65 63)
