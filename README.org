@@ -1,7 +1,7 @@
 * cl-extempore
 *** Orm Finnendahl
 
-common lisp translation of parts of extempore by Andrew
+common lisp translation of parts of [[https://github.com/digego/extempore][extempore]] by Andrew
 Sorensen. Needs incudine, jack and a midi sampler.
 
 ** Usage
@@ -36,7 +36,7 @@ Sorensen. Needs incudine, jack and a midi sampler.
            qjackctl) or connect manually after restarting
            dsp-processing.
          
-   Check the contents "examples" folder for examples taken from
+   Check the contents of the "examples" folder for examples taken from
    YouTube video performances of Andrew Sorensen. there are some minor
    differences:
 
