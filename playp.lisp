@@ -54,7 +54,7 @@
                       (if (> x 0)
                           (progn
                             (setf phase (+ mod_diff tval offset))
-                            (apply #'play phase ;(+ mod_diff tval offset)
+                            (apply #'play_delta phase ;(+ mod_diff tval offset)
                                    inst
                                    (pc-quantize (+ x poffset) pclas)
                                    volume

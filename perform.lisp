@@ -23,13 +23,13 @@
 (defun play-note (time instr keynum amp dur &rest args)
 ;;;  (format t "time:~a, now: ~a~%" (samples->secs time) (samples->secs (now)))
   (apply (play-instrument instr)
-         :time (samples->secs (- time (now))) :keynum keynum :amplitude amp
+         :time (samples->secs time) :keynum keynum :amplitude amp
          :duration (samples->secs dur) args))
 
 (defun rplay (beat instr keynum amp dur &rest args)
   "play one note of instr at beat in the future with specified params. Dur is in beat units"
 ;;;  (format t "beat:~a, now: ~a~%" beat (samples->secs (now)))
-  (apply #'play-note (+ (now) (- (*metro* 'get-time beat)(*metro* 'get-time 0))) instr keynum (max 0 (min 127 amp))
+  (apply #'play-note (- (*metro* 'get-time beat) (*metro* 'get-time 0)) instr keynum (max 0 (min 127 amp))
          (- (*metro* 'get-time (+ beat dur))
             (*metro* 'get-time beat))
          args))
@@ -54,6 +54,14 @@
 (defun play (beat instr keynum amp dur &rest args)
   "play one note of instr at beat in the future with specified params. Dur is in beat units"
   (unless (member keynum '(_ ~))
+    (apply #'play-note (- (*metro* 'get-time beat) (now)) instr keynum (max 0 (min 127 amp))
+           (- (*metro* 'get-time (+ beat dur))
+              (*metro* 'get-time beat))
+           args)))
+
+(defun play_delta (beat instr keynum amp dur &rest args)
+  "play one note of instr at beat in the future with specified params. Dur is in beat units"
+  (unless (member keynum '(_ ~))
     (apply #'play-note (*metro* 'get-time beat) instr keynum (max 0 (min 127 amp))
            (- (*metro* 'get-time (+ beat dur))
               (*metro* 'get-time beat))
@@ -63,7 +71,6 @@
 ;;; (play 0.5 :piano 60 80 1 :channel )
 
 
-(format t "playing!~%")
 
 #|
 (let ((beat (*metro* 'get-beat 1)))
@@ -85,7 +92,7 @@
                            (loop
                              with dur = (/ dur len)
                              for idx below len
-                             do (apply #'play (+ beat (* idx dur)) instr (rotate keys idx) amp dur args))))
+                             do (apply #'play_delta (+ beat (* idx dur)) instr (rotate keys idx) amp dur args))))
            ((member keys '(_ ~)) nil)
            (:else (list keys))))))
 
