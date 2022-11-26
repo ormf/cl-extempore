@@ -1,8 +1,9 @@
 * cl-extempore
 *** Orm Finnendahl
 
-common lisp translation of parts of [[https://github.com/digego/extempore][extempore]] by Andrew
-Sorensen. Needs incudine, jack and a midi sampler.
+Common Lisp translation of parts of [[Https://github.com/digego/extempore][Extempore]] by Andrew
+Sorensen. Needs incudine, JACK and a Midi Softsynth/Hardware
+Synthesizer.
 
 ** Dependencies
 
@@ -10,7 +11,8 @@ Sorensen. Needs incudine, jack and a midi sampler.
 
    - [[https://jackaudio.org/][JACK]]
 
-   - A Midi softsynth (e.g. [[https://qsynth.sourceforge.io/][Qsynth]])
+   - A Midi Softsynth (e.g. [[https://qsynth.sourceforge.io/][Qsynth]]) or a Hardware Synthesizer
+     connected to the Midi output of the Computer's Soundcard.
 
 ** Installation
 
@@ -52,7 +54,7 @@ Sorensen. Needs incudine, jack and a midi sampler.
            dsp-processing.
          
    Check the contents of the "examples" folder for examples taken from
-   YouTube video performances of Andrew Sorensen. there are some minor
+   YouTube video performances of Andrew Sorensen. There are some minor
    differences:
 
    - extempore's =callback= is replaced by incudine's =at=
