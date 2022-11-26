@@ -175,7 +175,7 @@
              (fmakunbound ',name)))
        (setf startbeat (*metro* 'get-beat ,offs))
        (when start?
-         (push ,name *seqs*)
+         (push ',name *patterns*)
          (,name (*metro* 'get-beat ,offs) dur 0 (list ,@seqs))))))
 
 ;;; (:> pat-1 2 2 (play beat :flute @1 80 dur) (list 60 58 60 (cycle lc 1 '(72 67) '(73 72))) '(60 62 65))
@@ -193,6 +193,10 @@
 ;;; (get-length (list 60 58 60 (cycle lc 1 '(72 67) '(73 72))))
 
 |#
+
+
+
+
 
 (defmacro :< (name len offs expr &rest seqs)
   (declare (ignore len offs expr seqs))
@@ -310,20 +314,6 @@ nth arg is repeated before advancing to the next."
       finally (return result)))
 
 ;;; (take-while 4 (lambda (x) (> x 12)) (range 0 20)) -> (13 14 15 16)
-
-(defun holder ()
-  (let ((cache '()))
-    (lambda (lc1 expr LC LP LL)
-      (if (null cache) (setf cache expr))
-      (if (and (= (mod LP LL) 0)
-               (= (mod LC lc1) 0))
-          (setf cache expr))
-      cache)))
-
-(defmacro hold (h pos expr)
-  (let* ((localpos (mod pos 1))
-         (num (- pos localpos)))
-    `(,h ,num ,expr LC LP LL)))
 
 #|
 ;; scale, qnt and rel take an optional *scale* argument
@@ -469,6 +459,21 @@ nth arg is repeated before advancing to the next."
                       (range 0 (length lst)) (rotate lst r))))))
 
 |#
+
+(defun holder ()
+  (let ((cache '()))
+    (lambda (lc_ expr LC LP LL)
+      (if (null cache) (setf cache expr))
+      (if (and (= (mod LP LL) 0)
+               (= (mod LC lc_) 0))
+          (setf cache expr))
+      cache)))
+
+(defmacro hold (h pos expr)
+  (let* ((localpos (mod pos 1))
+         (num (- pos localpos)))
+    `(funcall ,h ,num ,expr LC LP LL)))
+
 
 (setf (fdefinition 'rnd) #'r-elt)
 (setf (fdefinition '%) #'mod)

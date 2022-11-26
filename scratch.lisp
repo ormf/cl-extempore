@@ -895,3 +895,56 @@ Hallo"))
         (/ 2))
        startbeat)
   dur)
+
+
+(let* ((lc -1)
+       (start? (not (fboundp 's1)))
+       (ll 4)
+       (lp 0)
+       (continue t)
+       (repeats nil)
+       (dur
+        (/ ll
+           (length
+            `(,(scale 3 8 (r-elt '(-1 0 1 2)))
+              ,(reverse (scale 3 8 (r-elt '(-1 0 1 2))))))))
+       (fn
+        (lambda (lc ll lp dur beat @1)
+          (declare (ignorable lc ll lp dur beat @1))
+          (play beat :cello @1 (cosr 60 10 7/4) dur :channel 1)))
+       startbeat)
+  (defun s1 (&optional beat dur depth seqs)
+    (multiple-value-setq (lc lp) (floor (- beat startbeat) ll))
+    (when (and (zerop depth) (zerop lp))
+      (setf seqs
+              (list
+               `(,(scale 3 8 (r-elt '(-1 0 1 2)))
+                 ,(reverse (scale 3 8 (r-elt '(-1 0 1 2)))))))
+      (when repeats
+        (decf repeats)
+        (if (< repeats 0)
+            (setf continue nil))))
+    (when continue
+        (progn
+         (when (first seqs)
+           (if (consp (caar seqs))
+               (when (fboundp 's1)
+                 (s1 beat (/ dur (length (caar seqs))) (1+ depth)
+                     (mapcar #'first-as-list seqs)))
+               (apply fn lc ll lp dur beat (mapcar #'first seqs))))
+         (when (or (and (zerop depth) continue (fboundp 's1)) (cadar seqs))
+           (at (*metro* (+ beat (* 0.5 dur))) #'s1 (+ beat dur) dur depth
+               (cons
+                (if (zerop depth)
+                    (rotate (first seqs))
+                    (cdr (first seqs)))
+                (mapcar #'rotate (cdr seqs))))))
+;;; (fmakunbound 's1)
+        ))
+  (setf startbeat (*metro* 'get-beat 0))
+  (when start?
+    (push 's1 *patterns*)
+    (s1 (*metro* 'get-beat 0) dur 0
+        (list
+         `(,(scale 3 8 (r-elt '(-1 0 1 2)))
+           ,(reverse (scale 3 8 (r-elt '(-1 0 1 2)))))))))
