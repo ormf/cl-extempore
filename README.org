@@ -12,6 +12,11 @@ Sorensen. Needs incudine, jack and a midi sampler.
 
    - A Midi softsynth (e.g. [[https://qsynth.sourceforge.io/][Qsynth]])
 
+** Installation
+
+   For quicklisp enabled lisp systems copy/link the cl-extempore
+   folder into ~/quicklisp/local-projects.
+   
 ** Usage
 
    Start a midi softsynth with a general midi soundfont loaded (like
