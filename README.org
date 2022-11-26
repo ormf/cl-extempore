@@ -50,24 +50,33 @@ Sorensen. Needs incudine, jack and a midi sampler.
    YouTube video performances of Andrew Sorensen. there are some minor
    differences:
 
-   - extempore's "callback" is replaced by incudine's "at"
+   - extempore's =callback= is replaced by incudine's =at=
 
-   - ":|" in the pattern language is replaced with ":<"
+   - =:|= in the pattern language is replaced with =:<=
 
-   - the "play" function requires "beat" as second and the instrument
-     to use as second and third argument. The midi channel is given to
-     play using the :channel keyword and a channel value in the range
-     [1-16].
+   - the =play= function requires the beat as second and the
+     instrument to use as third argument. The midi channel is given to
+     =play= using the =:channel= keyword and a channel value in the
+     range [1-16] at the end of the arguments.
 
      The instrument names are implemented as keywords derived from the
      general midi specification (see "instruments.lisp" for available
      names).
 
    - an additional (optional) number inserted before the notelists of
-     the :> macro indicates the number of repetitions of the toplevel
-     loop before autostopping of the pattern (contrary to the default
-     of endless looping).
- 
+     the =:>= macro indicates the number of repetitions of the
+     toplevel loop before autostopping of the pattern (contrary to the
+     default of endless looping).
+
+** Extensions
+
+   Other instruments, like software/dsp/incudine based synths can be
+   easily get added using define-instrument. This function should
+   return a closure which will produce sound when called with the
+   =:time= =:keynum= =:duration= and =:amp= properties. Additional
+   properties specific to the synth can get added at the end of a call
+   to the =#'play= function.
+   
 ** License
 
 gpl 2.0 or later.
