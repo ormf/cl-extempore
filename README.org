@@ -15,7 +15,7 @@ Sorensen. Needs incudine, jack and a midi sampler.
 ** Installation
 
    For quicklisp enabled lisp systems copy/link the cl-extempore
-   folder into ~/quicklisp/local-projects.
+   folder into =~/quicklisp/local-projects/=.
    
 ** Usage
 
