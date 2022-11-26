@@ -26,18 +26,27 @@ Synthesizer.
 
    Then:
 
-   (ql:quickload "cl-extempore")
+   =(ql:quickload "cl-extempore")=
 
    After connecting incudine to the softsynth, the following statement
    should play a piano sound for 0.5 seconds with keynum 60 on channel
    0 of the softsynth:
 
-   (funcall (play-instrument :piano) :time 0 :keynum 60 :duration 1 :channel 1)
+   =(funcall (play-instrument :piano) :time 0 :keynum 60 :duration 1 :channel 1)=
 
    If using emacs+slime, evaluating the code in "elisp-setup.lisp"
    will result in the definition of the following keyboard shortcuts
    for the repl and for any lisp buffer:
 
+|-----+-----------------------------------------------------------------------|
+| C-. | remove all events from the scheduler and stop all currently           |
+|     | playing midi-notes. This will also immediately terminate all temporal |
+|     | recursion.                                                            |
+|-----+-----------------------------------------------------------------------|
+|     |                                                                       |
+|     |
+|-----+-----------------------------------------------------------------------|
+   
    C-.     remove all events from the scheduler and stop all currently
            playing midi-notes. This will also immediately terminate all temporal
            recursion.
