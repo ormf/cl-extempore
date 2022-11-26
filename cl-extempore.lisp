@@ -21,3 +21,11 @@
 (in-package :cl-extempore)
 
 (define-metro *metro* 110)
+
+(incudine:rt-start)
+
+(loop
+  for channel from 0
+  for instr in '(:piano :fingered-bass :vibraphone :tenor-sax :baritone-sax)
+  for pgm = (get-gm-idx instr)
+  do (set-channel-pgm channel pgm :force t))

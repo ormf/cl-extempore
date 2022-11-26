@@ -30,6 +30,53 @@
 (defun rt-stop ()
   (prog1 (incudine.scratch::rt-stop)))
 
+(defun flatten (seq &key (test #'atom) (key #'identity))
+  "remove all brackets except the outmost in seq."
+  (flatten-fn seq :test test :key key))
+
+(defun nconc-get-size (list)
+  (labels ((inner-loop (x n head)
+             (if (null (cdr x))
+                 (progn
+                   (setf (cdr x) head)
+                   (incf n))
+                 (inner-loop (cdr x) (incf n) head))))
+    (inner-loop list 0 list)))
+
+;; (defparameter test '(1 2 3))
+;; (nconc-get-size test)
+;; (loop for x in test for z from 1 to 5 collect x)
+
+;; new rotate function which only traverses the list one time,
+;; determining the length and nconcing it in the same step. It uses
+;; nconc-get-size as helper function. Function ist non-destructive: It
+;; uses a local copy of list instead of the original.
+
+(defun rotate (list &optional (num 1))
+  "rotate a list by n elems. n can be negative. If n is larger than
+the list size it will wrap around as if the rotation was called
+recursively n times."
+  (let* ((new-list (copy-tree list))
+         (num-normalized (mod num (nconc-get-size new-list)))) ;; innermost function nconcs new-list to an endless list and gets size in one step
+    (if (zerop num-normalized) list
+      (let* ((newlast (nthcdr (- num-normalized 1) new-list)) ;; determine the new last element of the list (wraps around for nums > (length list) or < 0) and store into variable
+             (newfirst (cdr newlast))) ;; the new listhead is the cdr of the last element; also stored in variable
+        (setf (cdr newlast) nil) ;; set the cdr of the new last element to nil
+        (values newfirst))))) ;; return the new first element (listhead)
+
+(defun shuffle (seq &key (start 0) (end (length seq))
+                (state *random-state*) (copy t) &aux
+                (width (- end start)))
+  (if (< width 2)
+      seq
+      (progn (when copy (setf seq (copy-list seq)))
+             (loop for i from start to (- end 1)
+                   for j = (+ start (random width state))
+                   for v = (elt seq i)
+                   do (setf (elt seq i) (elt seq j))
+                      (setf (elt seq j) v))
+                   seq)))
+
 (defmacro define-metro (name tempo)
   (let ((metro (gensym "METRO")))
     `(progn

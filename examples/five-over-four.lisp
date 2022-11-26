@@ -62,7 +62,7 @@
 
 (f1 (*metro* 'get-beat 1) 1/4)
 
-(onbeat?)
+;;; (onbeat?)
 
 
 #|

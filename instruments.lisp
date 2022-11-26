@@ -58,7 +58,7 @@
 (defun define-instrument (name val &key (hash *instruments*))
   (setf (gethash name hash) val))
 
-(defun get-instrument (name)
+(defun play-instrument (name)
   (gethash name *instruments*))
 
 (defun list-instruments (&optional (hash *instruments*))
@@ -70,17 +70,11 @@
 
 (defun set-channel-pgm (chan pgm &key (force nil))
   (when (or force (/= (aref *midi-channel-pgms* chan) pgm))
-    (sprout (new midi-program-change :time 0 :program pgm :channel chan))
+    (midi-pgm-out pgm chan)
     (setf (aref *midi-channel-pgms* chan) pgm)))
 
 
 ;;; send default setup for qsynth
-
-(loop
-  for channel from 0
-  for instr in '(:piano :fingered-bass :vibraphone :tenor-sax :baritone-sax)
-  for pgm = (get-gm-idx instr)
-  do (set-channel-pgm channel pgm :force t))
 
 #|
 (define-instrument :piano
@@ -106,11 +100,11 @@
       do (define-instrument instr
              (let ((instr instr))
                (lambda (&rest args)
-                 (let ((chan (1- (getf args :channel 1))))
-                   (set-channel-pgm chan (get-gm-idx instr))
-                   (apply #'make-instance 'midi (append (list :channel chan) args)))))))
+                 (let ((chan (getf args :channel 1)))
+                   (set-channel-pgm (1- chan) (get-gm-idx instr))
+                   (apply #'midi-play-note (append (list :channel chan) args)))))))
 
 ;;; (jack-connect-qsynth)
 
-;;; (sprout (funcall (get-instrument :piano) :time 1 :keynum 60 :duration 1))
+;;; (funcall (play-instrument :piano) :time 0 :keynum 60 :duration 1 :channel 1)
 

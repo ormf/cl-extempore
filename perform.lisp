@@ -22,10 +22,9 @@
 
 (defun play-note (time instr keynum amp dur &rest args)
 ;;;  (format t "time:~a, now: ~a~%" (samples->secs time) (samples->secs (now)))
-  (sprout
-   (apply (get-instrument instr)
-          :time (samples->secs (- time (now))) :keynum keynum :amplitude amp
-          :duration (samples->secs dur) args)))
+  (apply (play-instrument instr)
+         :time (samples->secs (- time (now))) :keynum keynum :amplitude amp
+         :duration (samples->secs dur) args))
 
 (defun rplay (beat instr keynum amp dur &rest args)
   "play one note of instr at beat in the future with specified params. Dur is in beat units"

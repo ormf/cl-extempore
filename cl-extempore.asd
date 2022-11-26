@@ -6,9 +6,10 @@
   :license  "GPL 2.0 or later"
   :version "0.0.1"
   :serial t
-  :depends-on (#:cm #:cm-all #:incudine #:cl-ansi-text)
+  :depends-on (#:incudine #:cl-ansi-text)
   :components ((:file "package")
                (:file "utils")
+               (:file "midi")
                (:file "perform")
                (:file "pc_ivl")
                (:file "globals")
