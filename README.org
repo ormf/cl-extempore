@@ -2,8 +2,62 @@
 *** Orm Finnendahl
 
 common lisp translation of parts of extempore by Andrew
-Sorensen. Needs cm and incudine.
+Sorensen. Needs incudine, jack and a midi sampler.
 
+** Usage
+
+   Start a midi softsynth with a general midi soundfont loaded (like
+   qsynth with freepats on linux)
+
+   Then:
+
+   (ql:quickload "cl-extempore")
+
+   After connecting incudine to the softsynth, the following statement
+   should play a piano with keynum 60 on channel 0 of the softsynth:
+
+   (funcall (play-instrument :piano) :time 0 :keynum 60 :duration 1 :channel 1)
+
+   If using emacs+slime, evaluating the code in "elisp-setup.lisp"
+   will result in the definition of following keyboard shortcuts for
+   the repl and for any lisp buffer:
+
+   C-.     remove all events from the scheduler and stop all currently
+           playing midi-notes.
+
+   C-c C-. stop all dsp processing. This will remove all incudine
+           entries in jack-audio and jack-midi.
+
+   C-c M-. restart incudine's dsp-processing. This will list all
+           active jack-audio and jack-midi ports: Be aware that this
+           doesn't necessarily re-establish the connections to the
+           softsynth or audio hardware. Set up a persistent jack
+           patchbay for autoconnecting (like the one available in
+           qjackctl) or connect manually after restarting
+           dsp-processing.
+         
+   Check the contents "examples" folder for examples taken from
+   YouTube video performances of Andrew Sorensen. there are some minor
+   differences:
+
+   - extempore's "callback" is replaced by incudine's "at"
+
+   - ":|" in the pattern language is replaced with ":<"
+
+   - the "play" function requires "beat" as second and the instrument
+     to use as second and third argument. The midi channel is given to
+     play using the :channel keyword and a channel value in the range
+     [1-16].
+
+     The instrument names are implemented as keywords derived from the
+     general midi specification (see "instruments.lisp" for available
+     names).
+
+   - an additional (optional) number inserted before the notelists of
+     the :> macro indicates the number of repetitions of the toplevel
+     loop before autostopping of the pattern (contrary to the default
+     of endless looping).
+ 
 ** License
 
 gpl 2.0 or later.

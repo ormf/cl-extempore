@@ -4,4 +4,5 @@
   (:use #:cl)
   (:nicknames "ET" "EXTEMPORE")
   (:shadowing-import-from #:incudine
-   :at :now :+TWOPI+))
+   :at :now :+TWOPI+)
+  (:export #:midi-panic))

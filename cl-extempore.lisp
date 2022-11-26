@@ -26,6 +26,6 @@
 
 (loop
   for channel from 0
-  for instr in '(:piano :fingered-bass :vibraphone :tenor-sax :baritone-sax)
+  for instr in '(:piano :fingered-bass :vibraphone :tenor-sax :baritone-sax :tenor-sax)
   for pgm = (get-gm-idx instr)
   do (set-channel-pgm channel pgm :force t))
