@@ -34,18 +34,6 @@ Synthesizer.
 
    =(funcall (play-instrument :piano) :time 0 :keynum 60 :duration 1 :channel 1)=
 
-   If using emacs+slime, evaluating the code in "elisp-setup.lisp"
-   will result in the definition of the following keyboard shortcuts
-   for the repl and for any lisp buffer:
-
-|-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| =C-.=             | remove all events from the scheduler and stop all currently playing midi-notes. This will also immediately terminate all temporal recursion                                                                                                                                                                                                         |
-|-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| =C-c=\nbsp{}=C-.= | stop all dsp processing. This will remove all incudine entries in jack-audio and jack-midi.                                                                                                                                                                                                                                                         |
-|-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| =C-c=\nbsp{}=M-.= | restart incudine's dsp-processing. This will list all active jack-audio and jack-midi ports: Be aware that this doesn't necessarily re-establish the connections to the softsynth or audio hardware. Set up a persistent jack patchbay for autoconnecting (like the one available in qjackctl) or connect manually after restarting dsp-processing. |
-|-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-         
    Check the contents of the "examples" folder for examples taken from
    YouTube video performances of Andrew Sorensen. There are some minor
    differences:
@@ -67,6 +55,19 @@ Synthesizer.
      the =:>= macro indicates the number of repetitions of the
      toplevel loop before autostopping of the pattern (contrary to the
      default of endless looping).
+
+   If using emacs+slime, evaluating the code in "elisp-setup.lisp"
+   will result in the definition of the following keyboard shortcuts
+   for the repl and for any lisp buffer:
+
+|-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| =C-.=             | remove all events from the scheduler and stop all currently playing midi-notes. This will also immediately terminate all temporal recursion                                                                                                                                                                                                         |
+|-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| =C-c=\nbsp{}=C-.= | stop all dsp processing. This will remove all incudine entries in jack-audio and jack-midi.                                                                                                                                                                                                                                                         |
+|-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| =C-c=\nbsp{}=M-.= | restart incudine's dsp-processing. This will list all active jack-audio and jack-midi ports: Be aware that this doesn't necessarily re-establish the connections to the softsynth or audio hardware. Set up a persistent jack patchbay for autoconnecting (like the one available in qjackctl) or connect manually after restarting dsp-processing. |
+|-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+         
 
 ** Extensions
 
