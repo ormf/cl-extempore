@@ -4,6 +4,14 @@
 common lisp translation of parts of [[https://github.com/digego/extempore][extempore]] by Andrew
 Sorensen. Needs incudine, jack and a midi sampler.
 
+** Dependencies
+
+   - [[https://incudine.sourceforge.net/][incudine]]
+
+   - [[https://jackaudio.org/][JACK]]
+
+   - A Midi softsynth (e.g. [[https://qsynth.sourceforge.io/][Qsynth]])
+
 ** Usage
 
    Start a midi softsynth with a general midi soundfont loaded (like
@@ -14,16 +22,18 @@ Sorensen. Needs incudine, jack and a midi sampler.
    (ql:quickload "cl-extempore")
 
    After connecting incudine to the softsynth, the following statement
-   should play a piano with keynum 60 on channel 0 of the softsynth:
+   should play a piano sound for 0.5 seconds with keynum 60 on channel
+   0 of the softsynth:
 
    (funcall (play-instrument :piano) :time 0 :keynum 60 :duration 1 :channel 1)
 
    If using emacs+slime, evaluating the code in "elisp-setup.lisp"
-   will result in the definition of following keyboard shortcuts for
-   the repl and for any lisp buffer:
+   will result in the definition of the following keyboard shortcuts
+   for the repl and for any lisp buffer:
 
    C-.     remove all events from the scheduler and stop all currently
-           playing midi-notes.
+           playing midi-notes. This will also immediately terminate all temporal
+           recursion.
 
    C-c C-. stop all dsp processing. This will remove all incudine
            entries in jack-audio and jack-midi.

@@ -75,8 +75,8 @@ recursively n times."
                    for v = (elt seq i)
                    do (setf (elt seq i) (elt seq j))
                       (setf (elt seq j) v))
-                   seq))
-)
+                   seq)))
+
 (defmacro define-metro (name tempo)
   (let ((metro (gensym "METRO")))
     `(progn
