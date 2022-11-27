@@ -948,3 +948,7 @@ Hallo"))
         (list
          `(,(scale 3 8 (r-elt '(-1 0 1 2)))
            ,(reverse (scale 3 8 (r-elt '(-1 0 1 2)))))))))
+
+(defun abs-pc-transpose (val lst pcs)
+  "transpose lst by val num-steps within pcs."
+  (quantize-list (transpose val lst) pcs))

@@ -50,8 +50,8 @@
      (i7 . (0 . ^7))
      (i- . (0 . -))
      (i-7 . (0 . -7))
-     (n . (1 . ^)) ; neopolitan
-     (n6 . (1 . ^6)) ; neopolitan
+     (n . (1 . ^)) ; neapolitan
+     (n6 . (1 . ^6)) ; neapolitan
      (ii . (2 . -))
      (ii6 . (2 . -6))
      (ii7 . (2 . -7))
@@ -85,6 +85,54 @@
      (vii . (11 . o))
      (vii7 . (11 . -7b5))
      ))
+
+(defparameter *kdiatonic-major*
+  (let ((hash (make-hash-table)))
+    (loop for (key value) on
+          '(:i (0 . ^)
+            :i6 (0 . ^6)
+            :i64 (0 . ^64)
+            :i7 (0 . ^7)
+            :i- (0 . -)
+            :i-7 (0 . -7)
+            :n (1 . ^)     ; neapolitan
+            :n6 (1 . ^6)   ; neapolitan
+            :ii (2 . -)
+            :ii6 (2 . -6)
+            :ii7 (2 . -7)
+            :ii9 (2 . -9)
+            :ii^ (2 . ^)
+            :ii^7 (2 . ^7)
+            :iii (4 . -)
+            :iii6 (4 . -6)
+            :iii7 (4 . -7)
+            :iii^ (4 . ^)
+            :iii^7 (4 . ^7)
+            :iv (5 . ^)
+            :iv6 (5 . ^6)
+            :iv7 (5 . ^7)
+            :iv- (5 . -)
+            :iv-7 (5 . -7)
+            :v (7 . ^)
+            :v6 (7 . ^6)
+            :v7 (7 . 7)
+            :v- (7 . -)
+            :v-7 (7 . -7)
+            :b6 (8 . ^)
+            :vi (9 . -)
+            :vi6 (9 . -6)
+            :vi7 (9 . -7)
+            :vi^ (9 . ^)
+            :vi^7 (9 . ^7)
+            :b7 (10 . ^)
+            :viio (11 . o)
+            :viio7 (11 . o7)
+            :vii (11 . o)
+            :vii7 (11 . -7b5)
+            )
+          by #'cddr
+          do (setf (gethash key hash) value))
+    hash))
 
 ;; Define basic diatonic minor
 (defparameter *diatonic-minor*
@@ -140,6 +188,64 @@
      (viio7 . (11 . o7)) ; raised 7 (dim)
      ))
 
+(defparameter *kdiatonic-minor*
+  (let ((hash (make-hash-table)))
+    (loop for (key value) on
+          '(:i (0 -)
+            :i6 (0 -6)
+            :i64 (0 -64)
+            :i7 (0 -7)
+            :i^ (0 ^)
+            :i^6 (0 ^6)
+            :i^64 (0 ^64)
+            :i^7 (0 ^7)
+            :n (1 ^)                    ; neapolitan
+            :n6 (1 ^6)                  ; neapolitan
+            :ii (2 o)
+            :ii6 (2 o6)
+            :ii7 (2 o7)
+            :ii- (2 -)
+            :ii-6 (2 -6)
+            :ii-7 (2 -7)
+            :ii^ (2 ^)
+            :ii^7 (2 ^7)
+            :iii (3 ^)
+            :iii6 (3 ^6)
+            :iii7 (3 ^7)
+            :iii- (3 -)
+            :iii-6 (3 -6)
+            :iii-7 (3 -7)
+            :iv (5 -)
+            :iv6 (5 -6)
+            :iv7 (5 -7)
+            :iv^ (5 ^)
+            :iv^6 (5 ^6)
+            :iv^7 (5 ^7)
+            :v (7 ^)
+            :v^ (7 ^)
+            :v6 (7 ^6)
+            :v7 (7 7)
+            :v- (7 -)
+            :v-6 (7 -6)
+            :v-6 (7 -6)
+            :v-7 (7 -)
+            :vi (8 ^)
+            :vi6 (8 ^6)
+            :vi7 (8 ^7)
+            :vi- (8 -)
+            :vi-6 (8 -6)
+            :vi-7 (8 -7)
+            :vii (10 ^)
+            :vii6 (10 ^6)
+            :vii7 (10 ^7)
+            :viio (11 o)                ;raised 7 (dim)
+            :viio6 (11 o6)              ;raised 7 (dim)
+            :viio7 (11 o7)              ; raised 7 (dim)
+            )
+          by #'cddr
+          do (setf (gethash key hash) value))
+    hash))
+
 ;; various scales defined as pc sets
 (defparameter *scales*
    '((blues . (2 1 1 3 2))
@@ -190,6 +296,61 @@
      (aeolian . (2 1 2 2 1 2))
      (locrian . (1 2 2 1 2 2))))
 
+
+(defparameter *kscales*
+  (let ((hash (make-hash-table)))
+    (loop for (key value) on
+          '(:blues (2 1 1 3 2)
+            :blue-note (3 2 1 1 3)
+            :diminished (2 1 2 1 2 1 2)
+            :half-diminished (2 1 2 1 2 2)
+            :dominant-diminished (1 2 1 2 1 2 1)
+            :acoustic (2 2 2 1 2 1)
+            :algerian (2 1 3 1 1 3)
+            :altered (1 2 1 2 2 2)
+            :augmented (3 1 3 1 3)
+            :bebop (2 2 1 2 1 1 2)
+            :bebop-dominant (2 2 1 2 2 1 1)
+            :enigmentic (1 3 2 2 2 1)
+            :flamenco (1 3 1 2 1 3)
+            :gypsy (2 1 3 1 1 2)
+            :istrian (1 2 1 2 1)
+            :iwato (1 4 1 4)
+            :melodic (2 1 2 2 2 2)
+            :neapolitan (1 2 2 2 2)
+            :persian (1 3 1 1 2 1)
+            :prometheus (2 2 2 3 1)
+            :tritone (1 3 2 1 3)
+            :ukrainian (2 1 3 1 2 1)
+            :yo (3 2 2 3)
+            :pentatonic (2 2 3 2)
+            :wholetone (2 2 2 2 2)
+            :chromatic (1 1 1 1 1 1 1 1 1 1 1)
+            :octatonic (2 1 2 1 2 1 2)
+            :messiaen1 (2 2 2 2 2)
+            :messiaen2 (2 1 2 1 2 1 2)
+            :messiaen3 (2 1 1 2 1 1 2 1)
+            :messiaen4 (1 1 3 1 1 1 3)
+            :messiaen5 (1 4 1 1 4)
+            :messiaen6 (2 2 1 1 2 2 1)
+            :messiaen7 (1 1 1 2 1 1 1 1 2)
+            :harmonic (2 1 2 2 1 3)
+            :double-harmonic (1 3 1 2 1 3)
+            :ionian (2 2 1 2 2 2)
+            :dorian (2 1 2 2 2 1)
+            :phrygian (1 2 2 2 1 2)
+            :phrygian-dominant (1 3 1 2 1 2)
+            :lydian (2 2 2 1 2 2)
+            :lydian-dominant (2 2 2 1 2 1)
+            :lydian-mixolydian (2 1 2 1 2 1 2)
+            :lydian-augmented (2 2 2 2 1 2)
+            :mixolydian (2 2 1 2 2 1)
+            :aeolian (2 1 2 2 1 2)
+            :locrian (1 2 2 1 2 2))
+          by #'cddr
+          do (setf (gethash key hash) value))
+    hash))
+
 ; Define basic chord symbols
 (defparameter *chord-syms*
    '((^ . (0 4 7))
@@ -230,6 +391,53 @@
      (-7b5 . (0 3 6 9))))
 
 
+(defparameter *kchord-syms*
+  (let ((hash (make-hash-table)))
+    (loop for (key value) on
+          '(:^ (0 4 7)
+            :^sus (0 5 7)
+            :^6 (4 7 0)
+            :^64 (7 0 4)
+            :^7 (0 4 7 11)
+            :^65 (4 7 11 0)
+            :^43 (7 11 0 4)
+            :^42 (11 0 4 7)
+            :^2 (11 0 4 7)
+            :^7#4 (0 4 7 11 6)
+            :^9 (0 4 7 11 2)
+            :7 (0 4 7 10)
+            :9 (0 4 7 10 2)
+            :65 (4 7 10 0)
+            :43 (7 10 0 4)
+            :2 (10 0 4 7)
+            :42 (10 0 4 7)
+            :- (0 3 7)
+            :-sus (0 5 7)
+            :-6 (3 7 0)
+            :-64 (7 0 3)
+            :-7 (0 3 7 10)
+            :-65 (3 7 10 0)
+            :-43 (7 10 0 3)
+            :-42 (10 0 3 7)
+            :-2 (10 0 3 7)
+            :-9 (0 3 7 10 2)
+            :o (0 3 6)
+            :o6 (3 6 0)
+            :o64 (6 0 3)
+            :o7 (0 3 6 8)
+            :o65 (3 6 8 0)
+            :o43 (6 8 0 3)
+            :o42 (8 0 3 6)
+            :o2 (8 0 3 6)
+            :-7b5 (0 3 6 9))
+          by #'cddr
+          do (setf (gethash key hash) value))
+    hash))
+
+;;; (gethash :-2 *kchord-syms*)
+
+
+
 (defparameter *chord-syms-scales*
    '((^ . 'ionian)
      (^sus . 'mixolydian)
@@ -268,6 +476,49 @@
      (o2 . 'locrian)
      (-7b5 . 'locrian)))
 
+(defparameter *kchord-syms-scales*
+  (let ((hash (make-hash-table)))
+    (loop for (key value) on
+          '(:^ 'ionian
+            :^sus 'mixolydian
+            :^6 'ionian
+            :^64 'ionian
+            :^7 'ionian
+            :^65 'ionian
+            :^43 'ionian
+            :^42 'ionian
+            :^2 'ionian
+            :^7#4 'ionian
+            :^9 'ionian
+            :7 'mixolydian
+            :9 'mixolydian
+            :65 'mixolydian
+            :43 'mixolydian
+            :2 'mixolydian
+            :42 'mixolydian
+            :- 'dorian
+            :-sus 'mixolydian
+            :-6 'dorian
+            :-64 'dorian
+            :-7 'dorian
+            :-65 'dorian
+            :-43 'dorian
+            :-42 'dorian
+            :-2 'dorian
+            :-9 'dorian
+            :o 'locrian
+            :o6 'locrian
+            :o64 'locrian
+            :o7 'locrian
+            :o65 'locrian
+            :o43 'locrian
+            :o42 'locrian
+            :o2 'locrian
+            :-7b5 'locrian)
+          by #'cddr
+          do (setf (gethash key hash) value))
+    hash))
+
 
 ;; returns a scale based on a chord (standard jazz translations)
 (defparameter *chord->scale*
@@ -286,6 +537,30 @@
      (vi7 . (9 . aeolian))
      (vii . (11 . locrian))
      (vii7 . (11 . locrian))))
+
+(defparameter *kchord->scale*
+  (let ((hash (make-hash-table)))
+    (loop
+      for (key value) on
+      '(:i (0 ionixan)
+        :i7 (0 ionian)
+        :ii (2 dorian)
+        :ii7 (2 dorian)
+        :ii9 (2 dorian)
+        :iii (4 phrygian)
+        :iii7 (4 phrygian)
+        :iv (5 lydian)
+        :iv7 (5 lydian)
+        :v (7 mixolydian)
+        :v7 (7 mixolydian)
+        :vi (9 aeolian)
+        :vi7 (9 aeolian)
+        :vii (11 locrian)
+        :vii7 (11 locrian))
+      by #'cddr
+      do (setf (gethash key hash) value))
+    hash))
+
 
 ;; return the pitch class of pitch
 
@@ -457,7 +732,7 @@ num-steps can extend several octaves up or down."
         (multiple-value-bind (oct new-idx) (floor new-pos len)
           (+ (* 12 (+ oct q-key-oct)) (elt pc-set new-idx)))))))
 
-;;; (pc-relative 62 2 '(0 2 4 5 7 9 11))
+;;; (pc-relative 62 2 '(0 2 4 5 7 9 11)) -> 65
 
 ;; make-chord creates a list of keynums in the range [lower..upper[ in
 ;; accordance to the given pc-set. The keynums are spread out over the
@@ -535,15 +810,15 @@ num-steps can extend several octaves up or down."
                            (mapcar #'(lambda (x) (* x factor))
                                    (cdr (differentiate seq)))))))
 
-;; invert the values of lst quantizing to pc
-(defun pc-invert (seq pc &rest args)
+;; invert the values of lst quantizing to pcs
+(defun pc-invert (seq pcs &rest args)
   (if (null args)
-      (quantize-list (invert seq) pc)
-      (quantize-list (invert seq (car args)) pc)))
+      (quantize-list (invert seq) pcs)
+      (quantize-list (invert seq (car args)) pcs)))
 
-;; transpose the values of lst quantizing to pc
-(defun pc-transpose (val lst pc)
-  (quantize-list (transpose val lst) pc))
+;; transpose the values of lst quantizing to pcs
+(defun pc-transpose (val lst pcs)
+  (quantize-list (transpose val lst) pcs))
 
 ;; expand/contract lst by factor quantizing to pc
 (defun pc-expand/contract (lst factor pc)
@@ -559,6 +834,10 @@ num-steps can extend several octaves up or down."
         (warn "Scale type ~a not found." type))))
 
 ;; returns a scale pc-set based on a chord type (basic jazz modal theory)
+;; chord type is a symbol indicating diatonic position and 
+;; 
+;; e.g. (chord->scale 2 'i7) (1 2 4 6 7 9 11)
+
 (defun chord->scale (root type &key (sort t))
    (pc-scale (pc (+ (cadr (assoc type *chord->scale*)) root))
           (cddr (assoc type *chord->scale*))

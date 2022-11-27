@@ -38,9 +38,9 @@ Synthesizer.
    YouTube video performances of Andrew Sorensen. There are some minor
    differences:
 
-   - extempore's =callback= is replaced by incudine's =at=
+   - extempore's =callback= is replaced by incudine's =at=.
 
-   - =:|= in the pattern language is replaced with =:<=
+   - =:|= in the pattern language is replaced with =:<=.
 
    - the =play= function requires the beat as second and the
      instrument to use as third argument. The midi channel is given to
@@ -56,6 +56,10 @@ Synthesizer.
      toplevel loop before autostopping of the pattern (contrary to the
      default of endless looping).
 
+   - extempore's =random= function is called =r-elt= in cl-extempore
+     as =random= is already defined in Common Lisp with different
+     semantics.
+     
    If using emacs+slime, evaluating the code in "elisp-setup.lisp"
    will result in the definition of the following keyboard shortcuts
    for the repl and for any lisp buffer:

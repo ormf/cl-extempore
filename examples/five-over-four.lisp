@@ -48,26 +48,25 @@
   (setf *scale* (pc-scale *root* 'aeolian)))
 
 (defun f1 (beat dur)
- (format t "beat: ~4,2f~%" (float beat 1.0))
   (onbeat? 1 10
-           (progn
-             (setf *root* (r-elt (remove *root* '(-2 0 3 9))))
-             (setf *scale* (pc-scale *root* 'aeolian))
+           (let ((type (r-elt '(ionian dorian aeolian))))
+             (setf *root* (r-elt (remove *root* '(-2 0 1 4 7 9))))
+             (setf *scale* (pc-scale *root* type))
              (map nil (lambda (p) (play (+ beat (random 3)) :electric-piano-1 p 60 10 :channel 3))
-                     (pc-make-chord 50 80 4 (pc-chord *root* '-7)))))
+                  (pc-make-chord 50 80 4 (pc-chord *root* (if (member type '(dorian aeolian)) '-7 '^7))))))
   (playp *scale* 5/4 0 :fingered-bass -24 `(60 _ 72) 110 (* 3.0 dur) :channel 1)
 ;;;  (play 0 :piano (+ *root* 48) 70 1/5 :channel 7)
   (playp *scale* 5/4 0 :vibraphone 0 `(60 63 67) (cosr 60 30 1) (* 4.9 dur) :channel 2)
   (format t "~a~%" beat)
   (let ((v 50))
-    ;; (playp *scale* 15 0 :tenor-sax 0
-    ;;        `(60 63 67 ,(r-elt '(72 74)) 70 58) v (* 10 dur) :channel 6)
-    ;; (playp *scale* 15 0 :tenor-sax -8
-    ;;        `(60 63 67 ,(r-elt '(68 72 74)) 70 58) v (* 10 dur) :channel 5)
-    ;; (playp *scale* 10 0 :tenor-sax -8
-    ;;        `(60) v (* 60 dur) :channel 5)
-    ;; (playp *scale* 15 3 :trombone 0
-    ;;        `(60 63 67 ,(r-elt '(68 72 74)) 70 58) v (* 10 dur) :channel 5)
+    (playp *scale* 15 0 :tenor-sax 0
+           `(60 63 67 ,(r-elt '(72 74)) 70 58) v (* 10 dur) :channel 6)
+    (playp *scale* 15 0 :tenor-sax -8
+           `(60 63 67 ,(r-elt '(68 72 74)) 70 58) v (* 10 dur) :channel 5)
+    (playp *scale* 10 0 :tenor-sax -8
+           `(60) v (* 60 dur) :channel 5)
+    (playp *scale* 15 3 :trombone 0
+           `(60 63 67 ,(r-elt '(68 72 74)) 70 58) v (* 10 dur) :channel 5)
     )
   (at (*metro* (+ beat (* 0.5 dur))) #'f1 (+ beat dur) dur))
 
