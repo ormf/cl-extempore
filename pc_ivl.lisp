@@ -820,6 +820,25 @@ num-steps can extend several octaves up or down."
 (defun pc-transpose (val lst pcs)
   (quantize-list (transpose val lst) pcs))
 
+(defun pcs-step-transpose (val step pcs)
+  "transpose the quantized value of val by step number of steps within
+the pcs." 
+  (let ((keynum (pc-quantize val pcs)))
+    (multiple-value-bind (oct pos)
+        (floor (+ (position (pc keynum) pcs) step) (length pcs))
+      (+ (* 12 (+ oct (floor keynum 12))) (elt pcs pos)))))
+
+(defun pcs-transpose (steps lst pcs)
+  "transpose lst by num steps according to pcs."
+  (mapcar (lambda (k) (pcs-step-transpose k steps pcs)) lst))
+
+;;; this is not working as expected:
+;;; (pc-transpose 5 '(60 62 63) (pc-scale 0 'octatonic)) -> (65 68 68)
+;;; use this instead:
+;;; (pcs-transpose 3 '(60 62 63) (pc-scale 0 'octatonic)) -> (65 66 68)
+;;; (pcs-transpose -2 '(60 62 63) (pc-scale 0 'octatonic)) -> (57 59 60)
+
+
 ;; expand/contract lst by factor quantizing to pc
 (defun pc-expand/contract (lst factor pc)
   (quantize-list (expand/contract lst factor) pc))

@@ -952,3 +952,16 @@ Hallo"))
 (defun abs-pc-transpose (val lst pcs)
   "transpose lst by val num-steps within pcs."
   (quantize-list (transpose val lst) pcs))
+
+
+
+
+
+(step-transpose 60 -1 (pc-scale 0 'octatonic))
+
+(let* ((val 60)
+       (step 3)
+       (pcs (pc-scale 0 'octatonic))
+       (keynum (pc-quantize 60 pcs)))
+  (position (pc keynum) pcs)
+  )
